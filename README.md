@@ -1,6 +1,4 @@
-# COMP7855Project
-
-# AI Resume & Cover Letter Generator
+# COMP7855Project- AI Resume & Cover Letter Generator
 
 This project aims to provide an AI-driven platform for generating professional resumes and cover letters. As a team of 5 students, we are developing this tool to help job seekers create tailored resumes and cover letters with ease by leveraging AI technology. The platform will offer suggestions, edits, and personalized content based on the user's experience and job preferences.
 
