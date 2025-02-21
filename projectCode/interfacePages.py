@@ -3,13 +3,17 @@
 # Description: All pages
 # Author(s): Jasmine
 # Date created: Feb 19, 2025
-# Date modified: Feb 19, 2025
+# Date modified: Feb 20, 2025
 # ----------------------------------------------
 from database.jobDatabase import jobDatabase
-from database.experienceDatabase import experienceDatabase
-from database.resumeDatabase import resumeDatabase
+
+
 from database.coverLetterDatabase import coverLetterDatabase
 from database.UserProfileDatabase import UserProfileDatabase
+
+from database.resume_database import create_resume_table
+from database.resume_prompt import collect_user_profile, insert_user_data,insert_work_experience, insert_education,insert_projects,insert_certifications,insert_awards,insert_volunteer_experience  
+from database.display_table import display_table
 
 
 class interfacePages:
@@ -48,37 +52,40 @@ class interfacePages:
             else:
                 print("Invalid option. Please try again.")
 
-    def addExperience(self):
+
+    def fullResume(self):
+        create_resume_table()
         while True:
-            print("\nNew Experience")
+            print("\nUser Profile Menu")
             print("0. Exit")
-            print("1. Work")
-            print("2. Volunteer")
-            print("3. Education")
-            print("4. Interest")
-            print("5. Project")
+            print("1. Add Full Resume")
+            print("2. View Resume")
 
             choice = input("Choose an option: ")
 
-            if choice == '1':  # Add Work
-                experienceDatabase.addWork(self)
-            elif choice == '2':  # Add Volunteer
-                print("Add Volunteer")
-            elif choice == '3':  # Add Education
-                print("Add Education")
-            elif choice == '4':  # Add Interest
-                print("Add Interest")
-            elif choice == '5':  # Add Project
-                print("Add Project")
-            elif choice == '0':
-                print("Exiting...")
+            if choice == '1':  # Add new user profile
+                user_data=collect_user_profile()
+                user_id = insert_user_data(user_data)  
+                insert_work_experience(user_id, user_data["work_experience"])  
+                insert_education(user_id, user_data["education"])  
+                insert_projects(user_id, user_data["projects"])  
+                insert_certifications(user_id, user_data["certifications"])  
+                insert_awards(user_id, user_data["awards"])  
+                insert_volunteer_experience(user_id, user_data["volunteer_experience"])  
+
+                print("\nAll user data has been saved to the database successfully!")
+
+            elif choice == '2':  # View all saved user profiles
+                display_table()
+
+
+            elif choice == '0':  # Exit menu
+                print("Exiting user profile menu...")
                 break
+
             else:
                 print("Invalid option. Please try again.")
 
-    def fullResume(self):
-        resumeDatabase.viewResume(self)
-        print("Full resume page")
 
     def fullCoverLetter(self):
         coverLetterDatabase.viewCoverLetter(self)

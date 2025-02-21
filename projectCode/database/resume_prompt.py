@@ -51,28 +51,29 @@ def collect_multiple_entries(category_name):
 
     return entries  # Return the list of entries
 
-
-user_data = {
-    "personal_info": {
+def collect_user_profile():
+    user_data = {
+        "personal_info": {
         "full_name": input("Enter your full name: "),
         "email": input("Enter your email address: "),
         "phone": input("Enter your phone number: "),
         "linkedin": input("Enter your LinkedIn profile URL (optional): "),
         "location": input("Enter your current city and country: ")
-    },
-    "job_title": input("What job are you applying for? "),
-    "career_objective": input("Write a short career summary (2-3 sentences): "),
+        },
+        "job_title": input("What job are you applying for? "),
+        "career_objective": input("Write a short career summary (2-3 sentences): "),
     
-    # Collect multiple entries
-    "work_experience": collect_multiple_entries("work experience"),
-    "education": collect_multiple_entries("education"),
-    "projects": collect_multiple_entries("projects"),
-    "skills": input("List your top skills (comma-separated): "),
-    "certifications": collect_multiple_entries("certifications"),
-    "awards": collect_multiple_entries("awards"),
-    "volunteer_experience": collect_multiple_entries("volunteer experience"),
-    "languages": input("List any additional languages you speak and proficiency level: ")
-}
+        # Collect multiple entries
+        "work_experience": collect_multiple_entries("work experience"),
+        "education": collect_multiple_entries("education"),
+        "projects": collect_multiple_entries("projects"),
+        "skills": input("List your top skills (comma-separated): "),
+        "certifications": collect_multiple_entries("certifications"),
+        "awards": collect_multiple_entries("awards"),
+        "volunteer_experience": collect_multiple_entries("volunteer experience"),
+        "languages": input("List any additional languages you speak and proficiency level: ")
+    }
+    return user_data
 
 # ---------------- Database Functions ----------------
 
@@ -192,14 +193,4 @@ def insert_volunteer_experience(user_id, volunteer_experiences):
     conn.close()
 
 
-# ---------------- Store Data in Database ----------------
 
-user_id = insert_user_data(user_data)  
-insert_work_experience(user_id, user_data["work_experience"])  
-insert_education(user_id, user_data["education"])  
-insert_projects(user_id, user_data["projects"])  
-insert_certifications(user_id, user_data["certifications"])  
-insert_awards(user_id, user_data["awards"])  
-insert_volunteer_experience(user_id, user_data["volunteer_experience"])  
-
-print("\nAll user data has been saved to the database successfully!")
