@@ -1,7 +1,7 @@
 # ----------------------------------------------
 # Title: interfacePages.py
 # Description: All pages
-# Author(s): Jasmine 
+# Author(s): Jasmine
 # Date created: Feb 19, 2025
 # Date modified: Feb 19, 2025
 # ----------------------------------------------
@@ -9,17 +9,45 @@ from database.jobDatabase import jobDatabase
 from database.experienceDatabase import experienceDatabase
 from database.resumeDatabase import resumeDatabase
 from database.coverLetterDatabase import coverLetterDatabase
+from database.UserProfileDatabase import UserProfileDatabase
+
 
 class interfacePages:
     def __init__(self):
-        # Any initialization logic (if needed)
-        pass
+        # Initialize jobDatabase instance
+        self.db = jobDatabase()
+        self.profile_db = UserProfileDatabase()
+
     def addJob(self):
-        jobDatabase.addJob(self)
-        jobDatabase.viewJobs(self)
-        jobTitle = input("Enter title for analysis: ")
-        jobDatabase.qualificationAnalysis(self, jobTitle)
-        print(f"Add job page")
+        while True:
+            print("\n0. Exit")
+            print("1. New Job")
+            print("2. Update Job")
+            print("3. Delete Job")
+            print("4. View Jobs")
+            print("5. Qualification Analysis")
+
+            choice = input("Choose an option: ")
+
+            if choice == '1':  # Add Job
+                self.db.addJob()
+            elif choice == '2':  # Update Job
+                jobTitle = input("Enter the job title to update: ")
+                self.db.updateJob(jobTitle)
+            elif choice == '3':  # Delete Job
+                jobTitle = input("Enter the job title to delete: ")
+                self.db.deleteJob(jobTitle)
+            elif choice == '4':  # View Jobs
+                self.db.viewJobs()
+            elif choice == '5':  # Qualification Analysis
+                jobTitle = input("Enter the job title for analysis: ")
+                self.db.qualificationAnalysis(jobTitle)
+            elif choice == '0':
+                print("Exiting...")
+                break
+            else:
+                print("Invalid option. Please try again.")
+
     def addExperience(self):
         while True:
             print("\nNew Experience")
@@ -30,33 +58,94 @@ class interfacePages:
             print("4. Interest")
             print("5. Project")
 
-            """add function call here to display expirence database"""
-        
             choice = input("Choose an option: ")
-        
+
             if choice == '1':  # Add Work
-                experienceDatabase.addWork(self)  
+                experienceDatabase.addWork(self)
             elif choice == '2':  # Add Volunteer
-                print(f"Add Volunteer") 
+                print("Add Volunteer")
             elif choice == '3':  # Add Education
-                print(f"Add Education")  
+                print("Add Education")
             elif choice == '4':  # Add Interest
-                print(f"Add Interest")
+                print("Add Interest")
             elif choice == '5':  # Add Project
-                print(f"Add Project") 
+                print("Add Project")
             elif choice == '0':
                 print("Exiting...")
                 break
             else:
                 print("Invalid option. Please try again.")
-            
+
     def fullResume(self):
         resumeDatabase.viewResume(self)
-        print(f"Full resume page")
+        print("Full resume page")
+
     def fullCoverLetter(self):
-        coverLetter.viewCoverLetter(self)
-        print(f"Full cover letter page")
+        coverLetterDatabase.viewCoverLetter(self)
+        print("Full cover letter page")
+
     def userProfile(self):
-        print(f"User profile page")
+        """Calls functions directly from UserProfileDatabase"""
+        while True:
+            print("\nUser Profile Menu")
+            print("0. Exit")
+            print("1. Add New User Profile")
+            print("2. View Saved User Profiles")
+            print("3. Edit Existing User Profile")
+            print("4. Delete User Profile")
+
+            choice = input("Choose an option: ")
+
+            if choice == '1':  # Add new user profile
+                full_name = input("Enter Full Name: ").strip()
+                birth_date = input("Enter Date of Birth (YYYY-MM-DD): ").strip()
+                address = input("Enter Home Address: ").strip()
+                self.profile_db.add_user(full_name, birth_date, address)
+                print("User profile saved successfully!")
+
+            elif choice == '2':  # View all saved user profiles
+                self.profile_db.view_users()
+
+            elif choice == '3':  # Edit an existing user profile
+                user_id = input("Enter User ID to edit: ").strip()
+                existing_profile = self.profile_db.get_user(user_id)
+
+                if existing_profile:
+                    print("\nEditing Profile:")
+                    print(f"Current Name: {existing_profile[1]}")
+                    print(f"Current Birth Date: {existing_profile[2]}")
+                    print(f"Current Address: {existing_profile[3]}")
+
+                    full_name = input("New Full Name (leave blank to keep current): ").strip() or existing_profile[1]
+                    birth_date = input("New Birth Date (YYYY-MM-DD, leave blank to keep current): ").strip() or existing_profile[2]
+                    address = input("New Address (leave blank to keep current): ").strip() or existing_profile[3]
+
+                    self.profile_db.update_user(user_id, full_name, birth_date, address)
+                    print("User profile updated successfully!")
+
+                else:
+                    print("User ID not found.")
+
+            elif choice == '4':  # Delete user profile
+                user_id = input("Enter User ID to delete: ").strip()
+                existing_profile = self.profile_db.get_user(user_id)
+
+                if existing_profile:
+                    confirm = input(f"Are you sure you want to delete {existing_profile[1]}? (yes/no): ").strip().lower()
+                    if confirm == 'yes':
+                        self.profile_db.delete_user(user_id)
+                        print("User profile deleted successfully!")
+                    else:
+                        print("Deletion cancelled.")
+                else:
+                    print("User ID not found.")
+
+            elif choice == '0':  # Exit menu
+                print("Exiting user profile menu...")
+                break
+
+            else:
+                print("Invalid option. Please try again.")
+
     def archiveJobs(self):
-        print(f"Archive jobs page")
+        print("Archive jobs page")

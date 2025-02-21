@@ -43,7 +43,7 @@ def main_menu():
             pages.userProfile() 
         elif choice == '6':  # Archive jobs
             pages.archiveJobs()
-        elif choice == '7': 7 # testing purpose- example test api
+#        elif choice == '7': 7 # testing purpose- example test api
             prompt="get me the best chocolate cake recepie"
             response= AIapi.generateResponse(prompt)
             print(f"Response generated: {response}")
