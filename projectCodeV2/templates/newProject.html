@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='media/logoSmall.png') }}" />
+  <title>New Project</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+	<div id="#wrapper">
+  <header>
+    <div class="logo">
+      <img src="{{ url_for('static', filename='media/logo.png') }}" alt="Logo" class="logo">
+	  <p class="slogan">Making job applications easy &#128640;</p>
+    </div>
+    <nav>
+	<button onclick="location.href='/'">Back to Main</button>
+		<button onclick="location.href='newExperience'">Back to New Experience</button>
+    </nav>
+  </header>
+<div id="content">
+  <main>
+    <h1>New Project</h1>
+	<div class="top-right-buttons">
+		<button class="sign-out">Delete</button>
+    </div>
+    <form method="POST" action="/newProject">
+      <label for="project-name">Name:</label>
+      <input type="text" id="project-name" name="project-name" required>
+	  <label for="project-technologies">Technologies:</label>
+      <textarea id="project-technologies" name="project-technologies" required></textarea>
+
+      <label for="project-description">Description:</label>
+      <textarea id="project-description" name="project-description" required></textarea>
+	  <label for="project-impact">Impact (optional):</label>
+      <textarea id="project-description" name="project-description"></textarea>
+
+      <button type="submit">Save</button>
+    </form>
+
+  </main>
+  </div>
+    <footer id="footer">    
+  </footer>
+	</div>
+  </body>
+</html>

@@ -1,0 +1,21 @@
+Summary:
+The application follows a Model-View-Controller (MVC) architecture.
+The code is structured with HTML pages and a database integration.
+The classes utilize staticmethod, meaning they function as grouped functions without requiring object instances (no need for self), simplifying the design.
+Current functionality:
+	In the login page, there are 2 user with two buttons, each for a different user type.
+	The main page displays the "Job Applications" section, where users can click on a title or use the "New Job" button to add, edit, and save content to the database.
+	Two buttons at the top—"Sign Out" and "Settings"—are fully functional. When "Settings" is pressed, it displays all database entries in the command prompt for debugging purposes.
+	In the "Settings" section, users can add, edit, and save content to the database.
+	All other features are not yet implemented.
+
+
+Dependecies:
+pip install pdfkit
+pip install python-docx
+pip install bleach
+pip install beautifulsoup4
+pip install groq
+
+
+Good luck!

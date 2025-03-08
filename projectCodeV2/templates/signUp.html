@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='media/logoSmall.png') }}" />
+  <title>User Login</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+	<div id="#wrapper">
+  <div class="login-container">
+      <div class="logo-login">
+      <img src="{{ url_for('static', filename='media/logo.png') }}" alt="Logo" class="logo">
+      <p class="slogan">Making job applications easy &#128640;</p>
+    </div>
+    <h1>Sign up</h1>
+    <form method="POST" action="{{ url_for('profile') }}">
+	  
+		
+			<label for="full-name">Full name:</label>
+			<input type="text" id="full-name" name="full-name" value="{{ user[3] if user else '' }}" required>
+
+			<label for="email">Email:</label>
+			<input type="email" id="email" name="email" value="{{ user[4] if user else '' }}" required>
+
+			<label for="phone">Phone number:</label>
+			<input type="text" id="phone" name="phone" value="{{ user[5] if user else '' }}" required>
+
+
+
+						<label for="user-name">Username:</label>
+			<input type="text" id="user-name" name="user-name" value="{{ user[1] if user else '' }}" required>
+			
+			<label for="password">Password:</label>
+			<input type="password" id="password" name="password" value="{{ user[2] if user else '' }}" required>
+
+
+      <button type="submit" >Save</button>
+    </form>
+    <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+
+
+  </div>
+	</div>
+</body>
+</html>

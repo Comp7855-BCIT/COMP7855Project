@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='media/logoSmall.png') }}" />
+  <title>User Login</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+	<div id="#wrapper">
+  <div class="login-container">
+      <div class="logo-login">
+      <img src="{{ url_for('static', filename='media/logo.png') }}" alt="Logo" class="logo">
+      <p class="slogan">Making job applications easy &#128640;</p>
+    </div>
+    <h1>Login</h1>
+    <form method="POST" action="{{ url_for('login') }}">
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" required>
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required>
+      <button type="submit" >Login</button>
+    </form>
+    <p>Don't have an account? <a href="{{ url_for('signUp') }}">Sign up</a></p>
+
+    <!-- Buttons for User 1 and User 2 -->
+    <form method="POST" action="{{ url_for('login') }}">
+      <button type="submit" name="userId" value="1">Login as User 1</button>
+      <button type="submit" name="userId" value="2">Login as User 2</button>
+    </form>
+  </div>
+	</div>
+</body>
+</html>
