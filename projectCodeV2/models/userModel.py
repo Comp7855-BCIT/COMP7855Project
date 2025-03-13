@@ -57,7 +57,7 @@ class UserModel:
         return user[0] if user else None
 
     @staticmethod
-    def addUser(username, password, fullName, email, phone, linkedin, location, portfolio): 
+    def addUser(username, password, fullName, email, phone, linkedin, location, portfolio):
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
         cursor.execute('''
@@ -65,7 +65,21 @@ class UserModel:
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ''', (username, password, fullName, email, phone, linkedin, location, portfolio))
         conn.commit()
+
+        # Here we can get the last inserted ID:
+        user_id = cursor.lastrowid
+
         conn.close()
+        return user_id
+
+    @staticmethod
+    def getUserByUsername(username):
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
+        user = cursor.fetchone()
+        conn.close()
+        return user
 
     @staticmethod
     def updateUser(userId, username, password, fullName, email, phone, linkedin, location, portfolio):
