@@ -82,6 +82,16 @@ class UserModel:
         return user
 
     @staticmethod
+    def usernameExists(username):
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute('SELECT COUNT(*) FROM users WHERE username = ?', (username,))
+        count = cursor.fetchone()[0]
+        conn.close()
+        return (count > 0)
+
+
+    @staticmethod
     def updateUser(userId, username, password, fullName, email, phone, linkedin, location, portfolio):
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
