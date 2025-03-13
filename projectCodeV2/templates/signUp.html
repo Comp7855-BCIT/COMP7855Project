@@ -18,28 +18,23 @@
       <p class="slogan">Making job applications easy &#128640;</p>
     </div>
     <h1>Sign up</h1>
-    <form method="POST" action="{{ url_for('profile') }}">
-	  
-		
-			<label for="full-name">Full name:</label>
-			<input type="text" id="full-name" name="full-name" value="{{ user[3] if user else '' }}" required>
-
-			<label for="email">Email:</label>
-			<input type="email" id="email" name="email" value="{{ user[4] if user else '' }}" required>
-
-			<label for="phone">Phone number:</label>
-			<input type="text" id="phone" name="phone" value="{{ user[5] if user else '' }}" required>
-
-
-
-						<label for="user-name">Username:</label>
-			<input type="text" id="user-name" name="user-name" value="{{ user[1] if user else '' }}" required>
-			
-			<label for="password">Password:</label>
-			<input type="password" id="password" name="password" value="{{ user[2] if user else '' }}" required>
-
-
-      <button type="submit" >Save</button>
+    <form method="POST" action="{{ url_for('signUp') }}">
+      <label for="full-name">Full name:</label>
+      <input type="text" id="full-name" name="full-name" required>
+    
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" required>
+    
+      <label for="phone">Phone number:</label>
+      <input type="text" id="phone" name="phone" required>
+    
+      <label for="user-name">Username:</label>
+      <input type="text" id="user-name" name="user-name" required>
+      
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required>
+    
+      <button type="submit">Sign Up</button>
     </form>
     <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
 
