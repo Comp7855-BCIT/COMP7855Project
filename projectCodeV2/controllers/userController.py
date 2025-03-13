@@ -1,11 +1,12 @@
 # ----------------------------------------------
 # Title: userController.py
 # Description: User profile controller
-# Author(s): Jasmine 
+# Author(s): Jasmine
 # Date created: Feb 28, 2025
 # Date modified: Mar 8, 2025
 # ----------------------------------------------
-from flask import session, redirect, url_for, render_template, request
+import re
+from flask import session, redirect, url_for, render_template, request, flash
 from models.userModel import UserModel
 
 class UserController:
@@ -24,16 +25,21 @@ class UserController:
             portfolio = request.form['portfolio']
 
             if userId:
-                # Update the existing job
-                UserModel.updateUser(userId, userName, password, fullName, email, phone, linkedin, location, portfolio)
+                # Update the existing user
+                UserModel.updateUser(
+                    userId, userName, password, fullName, email, phone, 
+                    linkedin, location, portfolio
+                )
             else:
-                # Create a new user
-                UserModel.addUser(userId, userName, password, fullName, email, phone, linkedin, location, portfolio)
+                # Create a new user (if userId is None)
+                UserModel.addUser(
+                    userName, password, fullName, email, phone, 
+                    linkedin, location, portfolio
+                )
         
-            # Redirect to the main page (index)
             return redirect(url_for('index'))
 
-        # If userId is provided, fetch the user details for editing
+        # If GET and userId is provided, fetch the user details for editing
         user = None
         if userId:
             user = UserModel.getUserById(userId)
@@ -41,26 +47,48 @@ class UserController:
         return render_template('profile.html', user=user)
 
     @staticmethod
-    def login(userId): #<-- have to update this (currently works with 2 buttons for 2 users)
+    def login(userId):
+        """
+        Old method that logs in user 1 or 2 by ID. 
+        Possibly unused now, if you have a real login with username/password.
+        """
         session['userId'] = userId
         return redirect(url_for('index'))
     
     @staticmethod
     def signUp(full_name, email, phone, username, password):
-        from flask import session, redirect, url_for, flash
-
-        # Check if username already exists
+        """
+        Creates a new user after checking:
+         - username availability
+         - password complexity (>=12 chars, 1 uppercase, 1 special char)
+         - returns a redirect to index if successful
+        """
+        # 1) Check if username is already in use
         if UserModel.usernameExists(username):
             flash("Username is already taken, please choose another one.")
-            return redirect(url_for('signUp'))  # or handle it as you wish
+            return redirect(url_for('signUp'))
 
-        # Otherwise, continue with sign-up
-        new_user_id = UserModel.addUser(username, password, full_name, email, phone, '', '', '')
+        # 2) Validate password complexity
+        #   - At least 12 chars
+        #   - At least one uppercase [A-Z]
+        #   - At least one special character (anything not a-zA-Z0-9)
+        pattern = r'^(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{12,}$'
+        if not re.match(pattern, password):
+            flash("Password must be at least 12 characters, include an uppercase letter, and contain at least one special character.")
+            return redirect(url_for('signUp'))
+
+        # (Optional) If you'd like to hash the password before storing, do it here:
+        # import bcrypt
+        # hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        # Then pass hashed_pw instead of password below.
+
+        # 3) Create user in the database
+        new_user_id = UserModel.addUser(
+            username, password, full_name, email, phone, '', '', ''
+        )
         session['userId'] = new_user_id
 
         return redirect(url_for('index'))
-
-
 
     @staticmethod
     def getCurrentUser():
@@ -78,12 +106,15 @@ class UserController:
 
     @staticmethod
     def signout():
-        # Clear the user ID from the session
+        # Clear the user ID from session
         session.pop('userId', None)
         return redirect(url_for('login'))
     
     @staticmethod
     def viewProfile():
+        """
+        Displays entire DB for debugging, then shows user profile page if logged in.
+        """
         UserModel.displayFullDatabase()
         if 'userId' not in session:
             return redirect(url_for('login'))
@@ -94,14 +125,19 @@ class UserController:
 
     @staticmethod
     def validateLogin(username, password):
+        """
+        Checks user by username, compares password.
+        If valid, returns user ID; otherwise None.
+        """
         user = UserModel.getUserByUsername(username)
         if not user:
             return None  # user not found
 
         # user row structure is (id, username, password, fullName, email, phone, linkedin, location, portfolio)
-        stored_password = user[2]  # based on your table definition
+        stored_password = user[2]
+        # If storing plain text, compare directly:
         if password == stored_password:
-            return user[0]  # user ID
+            return user[0]
         else:
             return None
 
@@ -123,9 +159,10 @@ class UserController:
             linkedin = request.form.get('linkedin', '')
             portfolio = request.form.get('portfolio', '')
             
-            # Update the user in the database
+            # Update DB
             UserModel.updateUser(
-                userId, username, password, fullName, email, phone, linkedin, location, portfolio
+                userId, username, password, fullName, email, phone, 
+                linkedin, location, portfolio
             )
             return redirect(url_for('profile'))
         
