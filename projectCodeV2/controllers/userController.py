@@ -46,8 +46,24 @@ class UserController:
         return redirect(url_for('index'))
     
     @staticmethod
-    def signUp(): #<-- can use UserModel.addUser to create new user
-        pass
+    def signUp(full_name, email, phone, username, password):
+        # (Optional) hash the password here if you want security
+        # e.g. hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        # Then pass 'hashed' instead of 'password'
+
+        # Insert user into database
+        # signature: addUser(username, password, fullName, email, phone, linkedin, location, portfolio)
+        new_user_id = UserModel.addUser(username, password, full_name, email, phone, '', '', '')
+
+        # (Optional) automatically log them in:
+        from flask import session, redirect, url_for
+        session['userId'] = new_user_id
+
+        # Or just redirect them to login if you prefer:
+        # return redirect(url_for('login'))
+
+        return redirect(url_for('index'))
+
 
     @staticmethod
     def getCurrentUser():
@@ -78,6 +94,19 @@ class UserController:
         userId = session['userId']
         user = UserModel.getUserById(userId)
         return render_template('profile.html', user=user)
+
+    @staticmethod
+    def validateLogin(username, password):
+        user = UserModel.getUserByUsername(username)
+        if not user:
+            return None  # user not found
+
+        # user row structure is (id, username, password, fullName, email, phone, linkedin, location, portfolio)
+        stored_password = user[2]  # based on your table definition
+        if password == stored_password:
+            return user[0]  # user ID
+        else:
+            return None
 
     @staticmethod
     def updateProfile():
