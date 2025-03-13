@@ -47,22 +47,19 @@ class UserController:
     
     @staticmethod
     def signUp(full_name, email, phone, username, password):
-        # (Optional) hash the password here if you want security
-        # e.g. hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-        # Then pass 'hashed' instead of 'password'
+        from flask import session, redirect, url_for, flash
 
-        # Insert user into database
-        # signature: addUser(username, password, fullName, email, phone, linkedin, location, portfolio)
+        # Check if username already exists
+        if UserModel.usernameExists(username):
+            flash("Username is already taken, please choose another one.")
+            return redirect(url_for('signUp'))  # or handle it as you wish
+
+        # Otherwise, continue with sign-up
         new_user_id = UserModel.addUser(username, password, full_name, email, phone, '', '', '')
-
-        # (Optional) automatically log them in:
-        from flask import session, redirect, url_for
         session['userId'] = new_user_id
 
-        # Or just redirect them to login if you prefer:
-        # return redirect(url_for('login'))
-
         return redirect(url_for('index'))
+
 
 
     @staticmethod
