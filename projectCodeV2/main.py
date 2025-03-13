@@ -30,9 +30,21 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        userId = request.form.get('userId')
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        # Use userController to verify credentials
+        userId = UserController.validateLogin(username, password)
         if userId:
-            return UserController.login(userId)
+            # If successful, store in session and redirect
+            session['userId'] = userId
+            return redirect(url_for('index'))
+        else:
+            # If validation fails, show error or redirect
+            flash("Invalid username or password.")
+            return redirect(url_for('login'))
+
+    # GET request => show login form
     return render_template('login.html')
 
 @app.route('/profile', methods=['GET', 'POST'])
@@ -43,7 +55,18 @@ def profile():
 
 @app.route('/signUp', methods=['GET', 'POST'])
 def signUp():
-    print(f"Sign up page")
+    if request.method == 'POST':
+        # Gather form data from signUp.html
+        full_name = request.form.get('full-name')
+        email = request.form.get('email')
+        phone = request.form.get('phone')
+        username = request.form.get('user-name')
+        password = request.form.get('password')
+
+        # Call userController to handle sign-up logic
+        return UserController.signUp(full_name, email, phone, username, password)
+
+    # If GET, just render the sign-up form
     return render_template('signUp.html')
 
 @app.route('/signout')
