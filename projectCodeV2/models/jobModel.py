@@ -8,25 +8,23 @@
 import sqlite3
 
 class JobModel:
-    
+
     @staticmethod
-    def createJob(userId, jobTitle, location, industry, deadline, salaryRange, 
+    def createJob(userId, jobTitle, location, industry, deadline, salaryRange,
                   experienceLevel, rate, description, status, link, company):
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
-        
         cursor.execute('''
-            INSERT INTO jobs (userId, jobTitle, location, industry, deadline, 
-                              salaryRange, experienceLevel, rate, 
+            INSERT INTO jobs (userId, jobTitle, location, industry, deadline,
+                              salaryRange, experienceLevel, rate,
                               description, status, link, company)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (userId, jobTitle, location, industry, deadline, salaryRange, 
+        ''', (userId, jobTitle, location, industry, deadline, salaryRange,
               experienceLevel, rate, description, status, link, company))
-
         conn.commit()
         conn.close()
         print("Job added successfully.")
-        
+
     @staticmethod
     def getJobs(userId):
         conn = sqlite3.connect('database.db')
@@ -44,8 +42,8 @@ class JobModel:
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
         cursor.execute('''
-            SELECT * FROM jobs 
-            WHERE userId = ? 
+            SELECT * FROM jobs
+            WHERE userId = ?
               AND status = ?
         ''', (userId, status))
         jobs = cursor.fetchall()
@@ -62,17 +60,17 @@ class JobModel:
         return job
 
     @staticmethod
-    def updateJob(jobId, jobTitle, location, industry, deadline, salaryRange, 
+    def updateJob(jobId, jobTitle, location, industry, deadline, salaryRange,
                   experienceLevel, rate, description, status, link, company):
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
         cursor.execute('''
             UPDATE jobs
-            SET jobTitle = ?, location = ?, industry = ?, deadline = ?, 
-                salaryRange = ?, experienceLevel = ?, rate = ?, 
+            SET jobTitle = ?, location = ?, industry = ?, deadline = ?,
+                salaryRange = ?, experienceLevel = ?, rate = ?,
                 description = ?, status = ?, link = ?, company = ?
             WHERE id = ?
-        ''', (jobTitle, location, industry, deadline, salaryRange, 
+        ''', (jobTitle, location, industry, deadline, salaryRange,
               experienceLevel, rate, description, status, link, company, jobId))
         conn.commit()
         conn.close()
@@ -86,16 +84,38 @@ class JobModel:
         conn.commit()
         conn.close()
         print("Job deleted successfully.")
-    
-    # The rest of your placeholders remain unchanged
+
     @staticmethod
     def getJobsByFilters():
+        """
+        Placeholder method if you need more advanced filtering 
+        (e.g., location, salary, etc.)
+        """
         pass
-    
+
     @staticmethod
-    def saveJobSuggestions(userId, jobTitle, company, link):
-        pass
-    
+    def saveJobSuggestions(userId, jobTitle, company, link, matchScore):
+        """
+        Inserts a suggestion into the jobSuggestions table.
+        """
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO jobSuggestions (userId, jobTitle, company, link, matchScore)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (userId, jobTitle, company, link, matchScore))
+        conn.commit()
+        conn.close()
+        print("Job suggestion saved successfully.")
+
     @staticmethod
     def getJobSuggestions(userId):
-        pass
+        """
+        Retrieves job suggestions from the jobSuggestions table for the user.
+        """
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM jobSuggestions WHERE userId = ?', (userId,))
+        results = cursor.fetchall()
+        conn.close()
+        return results

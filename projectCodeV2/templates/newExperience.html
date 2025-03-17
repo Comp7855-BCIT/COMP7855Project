@@ -1,60 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='media/logoSmall.png') }}" />
   <title>New Experience</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-  		<link rel="preconnect" href="https://fonts.googleapis.com">
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet"
+  />
 </head>
 <body>
-	<div id="#wrapper">
-  <header>
-    <div class="logo">
-      <img src="{{ url_for('static', filename='media/logo.png') }}" alt="Logo" class="logo">
-	  <p class="slogan">Making job applications easy &#128640;</p>
-    </div>
-    <nav>
-      <button onclick="location.href='/'">Back to Main</button>
-    </nav>
-  </header>
-<div id="content">
-  <main>
-    <h1>New Experience</h1>
-    <div class="experience-buttons">
-      <button onclick="location.href='newWork'">Work</button>
-      <button onclick="location.href='newVolunteer'">Volunteer</button>
-      <button onclick="location.href='newProject'">Project</button>
-      <button onclick="location.href='newAward'">Award</button>
-	  <button onclick="location.href='newCertification'">Certificate</button>
-      <button onclick="location.href='newEducation'">Education</button>
+  <div id="#wrapper">
+    <header>
+      <div class="logo">
+        <img src="{{ url_for('static', filename='media/logo.png') }}" alt="Logo" class="logo" />
+        <p class="slogan">Making job applications easy &#128640;</p>
+      </div>
+      <nav>
+        <button onclick="location.href='/'">Back to Main</button>
+      </nav>
+    </header>
+
+    <div id="content">
+      <main>
+        <h1>New Experience</h1>
+        <div class="experience-buttons">
+          <!-- Buttons leading to forms for each experience type -->
+          <button onclick="location.href='newWork'">Work</button>
+          <button onclick="location.href='newVolunteer'">Volunteer</button>
+          <button onclick="location.href='newProject'">Project</button>
+          <button onclick="location.href='newAward'">Award</button>
+          <button onclick="location.href='newCertification'">Certificate</button>
+          <button onclick="location.href='newEducation'">Education</button>
+        </div>
+
+        <h2>Experience Table</h2>
+        <table id="experience-table">
+          <thead>
+            <tr>
+              <th>Work</th>
+              <th>Volunteer</th>
+              <th>Project</th>
+              <th>Award</th>
+              <th>Certificate</th>
+              <th>Education</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <!-- WORK EXPERIENCE -->
+              <td>
+                {% if experiences.work %}
+                  <ul>
+                    {% for w in experiences.work %}
+                      <!-- w is typically a row: (jobTitle, company, startDate, endDate, responsibilities) -->
+                      <li>
+                        <strong>{{ w[0] }}</strong> at {{ w[1] }}<br />
+                        {{ w[2] }} to {{ w[3] }}<br />
+                        Responsibilities: {{ w[4] }}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                  No Work Experience
+                {% endif %}
+              </td>
+
+              <!-- VOLUNTEER EXPERIENCE -->
+              <td>
+                {% if experiences.volunteer %}
+                  <ul>
+                    {% for vol in experiences.volunteer %}
+                      <!-- vol row: (role, organization, description) -->
+                      <li>
+                        <strong>{{ vol[0] }}</strong> at {{ vol[1] }}<br />
+                        {{ vol[2] }}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                  No Volunteer Experience
+                {% endif %}
+              </td>
+
+              <!-- PROJECTS -->
+              <td>
+                {% if experiences.project %}
+                  <ul>
+                    {% for proj in experiences.project %}
+                      <!-- proj row: (projectName, description, technologies, impact) -->
+                      <li>
+                        <strong>{{ proj[0] }}</strong><br />
+                        {{ proj[1] }}<br />
+                        Technologies: {{ proj[2] }}<br />
+                        Impact: {{ proj[3] }}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                  No Projects
+                {% endif %}
+              </td>
+
+              <!-- AWARDS -->
+              <td>
+                {% if experiences.award %}
+                  <ul>
+                    {% for aw in experiences.award %}
+                      <!-- aw row: (awardName, issuer, year) -->
+                      <li>
+                        {{ aw[0] }} from {{ aw[1] }} in {{ aw[2] }}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                  No Awards
+                {% endif %}
+              </td>
+
+              <!-- CERTIFICATES -->
+              <td>
+                {% if experiences.certificate %}
+                  <ul>
+                    {% for cert in experiences.certificate %}
+                      <!-- cert row: (certificateName, issuer, year) -->
+                      <li>
+                        {{ cert[0] }}, {{ cert[1] }}, {{ cert[2] }}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                  No Certifications
+                {% endif %}
+              </td>
+
+              <!-- EDUCATION -->
+              <td>
+                {% if experiences.education %}
+                  <ul>
+                    {% for edu in experiences.education %}
+                      <!-- edu row: (degree, university, graduationYear) -->
+                      <li>
+                        {{ edu[0] }} from {{ edu[1] }}, graduated {{ edu[2] }}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                  No Education
+                {% endif %}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </main>
     </div>
 
-
-    <h2>Experience Table</h2>
-    <table id="experience-table">
-      <thead>
-        <tr>
-          <th>Work</th>
-          <th>Volunteer</th>
-          <th>Project</th>
-          <th>Award</th>
-		  <th>Certificate</th>
-          <th>Education</th>
-        </tr>
-		</thead>
-      <tbody>
-       
-      </tbody>
-    </table>
-  </main>
+    <footer id="footer">
+      <!-- If you want a footer, you can place content here -->
+    </footer>
   </div>
-    <footer id="footer">    
-  </footer>
-
-	</div>
 </body>
 </html>

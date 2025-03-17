@@ -5,11 +5,15 @@
 # Date created: Feb 28, 2025
 # Date modified: Mar 10, 2025
 # ----------------------------------------------
+# main.py
 from flask import Flask, render_template, redirect, url_for, session, request, flash
 from controllers.userController import UserController
 from controllers.jobController import JobController
 from controllers.experienceController import ExperienceController
 from initDb import initDb
+
+# Add this line so Python knows what JobModel is
+from models.jobModel import JobModel
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
@@ -21,18 +25,35 @@ def index():
         return redirect(url_for('login'))
     userId = session['userId']
 
-    # Read the 'status' from query params
+    # Retrieve user's jobs (the ones they personally created)
     status_filter = request.args.get('status', '')
-
-    # If user selected a specific status
     if status_filter:
         jobs = JobController.viewJobsByStatus(userId, status_filter)
     else:
-        # Otherwise, show all jobs
         jobs = JobController.viewJobs(userId)
 
     username = UserController.getCurrentUsername()
-    return render_template('index.html', jobs=jobs, username=username)
+
+    # Now fetch job suggestions from the jobSuggestions table
+    rawSuggestions = JobModel.getJobSuggestions(userId)
+    aiSuggestions = []
+    for row in rawSuggestions:
+        # (id, userId, jobTitle, company, link, matchScore)
+        aiSuggestions.append({
+            "jobTitle":   row[2],
+            "company":    row[3],
+            "link":       row[4],
+            "matchScore": row[5]
+        })
+
+    return render_template(
+        'index.html',
+        jobs=jobs,
+        username=username,
+        aiSuggestions=aiSuggestions
+    )
+
+
 
 ######### User page ######### 
 @app.route('/login', methods=['GET', 'POST'])
@@ -97,36 +118,58 @@ def archiveJob():
 ######### Expirence page ######### 
 @app.route('/newExperience', methods=['GET', 'POST'])
 def newExperience():
-    return render_template('newExperience.html')
+    if request.method == 'POST':
+        # If your POST is just for a future plan, you can leave it blank or redirect.
+        return render_template('newExperience.html')
+    else:
+        # Make sure user is logged in
+        if 'userId' not in session:
+            return redirect(url_for('login'))
+        userId = session['userId']
+
+        # Retrieve a dictionary of experiences from the model
+        from models.experienceModel import ExperienceModel
+        experiences = ExperienceModel.getAllExperiencesForUser(userId)
+        
+        # Pass these into newExperience.html
+        return render_template('newExperience.html', experiences=experiences)
 
 @app.route('/newWork', methods=['GET', 'POST'])
 def newWork():
-    print("Work page")
-    return render_template('newWork.html') 
+    if request.method == 'POST':
+        return ExperienceController.addWork()
+    else:
+        print("Work page GET")
+        return render_template('newWork.html')
 
 @app.route('/newVolunteer', methods=['GET', 'POST'])
 def newVolunteer():
-    print("Volunteer page")
+    if request.method == 'POST':
+        return ExperienceController.addVolunteer()
     return render_template('newVolunteer.html')
 
 @app.route('/newProject', methods=['GET', 'POST'])
 def newProject():
-    print("Project page")
+    if request.method == 'POST':
+        return ExperienceController.addProject()
     return render_template('newProject.html')
 
 @app.route('/newAward', methods=['GET', 'POST'])
 def newAward():
-    print("Award page")
+    if request.method == 'POST':
+        return ExperienceController.addAward()
     return render_template('newAward.html')
 
 @app.route('/newCertification', methods=['GET', 'POST'])
 def newCertification():
-    print("Certification page")
+    if request.method == 'POST':
+        return ExperienceController.addCertification()
     return render_template('newCertification.html')
 
 @app.route('/newEducation', methods=['GET', 'POST'])
 def newEducation():
-    print("Education page")
+    if request.method == 'POST':
+        return ExperienceController.addEducation()
     return render_template('newEducation.html')
 
 ######### Documents page ######### 
@@ -139,6 +182,21 @@ def resume():
 def coverLetter():
     print("Cover letter page")
     return render_template('coverLetter.html')
+
+@app.route('/generateSuggestions')
+def generateSuggestions():
+    if 'userId' not in session:
+        return redirect(url_for('login'))
+    userId = session['userId']
+    from controllers.apiController import apiController
+    suggestions = apiController.suggestJobs(userId)
+    # suggestions is a list of { jobTitle, company, link, matchScore } 
+    # but also we saved them in DB
+
+    # We can also store them in session if you want immediate display 
+    # but it's simpler to re-fetch from DB on next load
+    return redirect(url_for('index'))
+
 
 if __name__ == '__main__':
     initDb()

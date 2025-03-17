@@ -76,7 +76,7 @@
           {% for job in jobs %}
           <tr>
             <td>
-              <!-- job[0] = ID, job[2] = jobTitle, job[12] = company, job[5] = deadline, job[10] = status (based on your DB columns) -->
+              <!-- job[0] = ID, job[2] = jobTitle, job[12] = company, job[5] = deadline, job[10] = status -->
               <a href="{{ url_for('newJob', jobId=job[0]) }}">{{ job[2] }}</a>
             </td>
             <td>{{ job[12] }}</td>
@@ -93,55 +93,50 @@
 
       <h2>AI Job Suggestions</h2>
       <div class="jobs-grid">
-        <!-- This is your existing example for job suggestions -->
-        <div class="job">
-          <a href="#" class="job-title">Character Designer</a>
-          <p>ABC Company</p>
-          <p>87% match</p>
-          <button class="add-me">Apply</button>
-        </div>
-        <div class="job">
-          <a href="#" class="job-title">Motion Graphics Designer</a>
-          <p>ABC Company</p>
-          <p>77% match</p>
-          <button class="add-me">Apply</button>
-        </div>
-        <!-- More sample suggestions -->
-        <button>Refresh</button>
+        {% if aiSuggestions %}
+          {% for suggestion in aiSuggestions %}
+          <div class="job">
+            <a href="{{ suggestion.link }}" class="job-title">{{ suggestion.jobTitle }}</a>
+            <p>{{ suggestion.company }}</p>
+            <p>{{ suggestion.matchScore }}% match</p>
+            <button class="add-me">Apply</button>
+          </div>
+          {% endfor %}
+        {% else %}
+          <p>No AI suggestions yet. Click "Refresh" below.</p>
+        {% endif %}
+        <button onclick="location.href='{{ url_for('generateSuggestions') }}'">Refresh</button>
       </div>
 
-	  <h2>Tips</h2>
-				
-	  <details>
-		  <summary>🚀 Having a Hard Time Getting Started? No Worries!</summary>
-		  <ul>
-			  <li>Use our AI tool to generate a draft—it’s okay if it’s not perfect. You can always tweak it later.</li>
-			  <li>Set a timer for 10 minutes and commit to working on your application for just that long. Often, getting started is all it takes to build momentum.</li>
-			  <li>Remember, progress over perfection! Even a small step forward is better than standing still.</li>
-		  </ul>
-	  </details>
-	  <details>
-		  <summary>🔍 Research the Company & Role Before Applying</summary>
-		  <ul>
-			  <li>Check out the company’s website, social media, and recent news to understand their culture and values.</li>
-			  <li>Look up the job title on LinkedIn to see how others describe their experience in similar roles.</li>
-			  <li>Use this research to show genuine enthusiasm in your cover letter and interview. (Bonus: It’ll make you feel more confident too!)</li>
-		  </ul>
-	  </details>
-	  <details>
-		  <summary>💼 Ace the Interview with Confidence</summary>
-		  <ul>
-			  <li>Practice common interview questions, but don’t memorize answers—keep it natural.</li>
-			  <li>Prepare a few questions to ask the interviewer (e.g., “What does success look like in this role?” or “How would you describe the team culture?”).</li>
-			  <li>Dress appropriately, show up on time (or a few minutes early for virtual interviews), and don’t forget to smile! A little confidence goes a long way.</li>
-		  </ul>
-	  </details>
+      <h2>Tips</h2>
+      <details>
+        <summary>🚀 Having a Hard Time Getting Started? No Worries!</summary>
+        <ul>
+          <li>Use our AI tool to generate a draft—it’s okay if it’s not perfect. You can always tweak it later.</li>
+          <li>Set a timer for 10 minutes and commit to working on your application for just that long. Often, getting started is all it takes to build momentum.</li>
+          <li>Remember, progress over perfection! Even a small step forward is better than standing still.</li>
+        </ul>
+      </details>
+      <details>
+        <summary>🔍 Research the Company & Role Before Applying</summary>
+        <ul>
+          <li>Check out the company’s website, social media, and recent news to understand their culture and values.</li>
+          <li>Look up the job title on LinkedIn to see how others describe their experience in similar roles.</li>
+          <li>Use this research to show genuine enthusiasm in your cover letter and interview. (Bonus: It’ll make you feel more confident too!)</li>
+        </ul>
+      </details>
+      <details>
+        <summary>💼 Ace the Interview with Confidence</summary>
+        <ul>
+          <li>Practice common interview questions, but don’t memorize answers—keep it natural.</li>
+          <li>Prepare a few questions to ask the interviewer (e.g., “What does success look like in this role?” or “How would you describe the team culture?”).</li>
+          <li>Dress appropriately, show up on time (or a few minutes early for virtual interviews), and don’t forget to smile! A little confidence goes a long way.</li>
+        </ul>
+      </details>
     </main>
   </div>
   <footer id="footer">
-    <button onclick="location.href='archiveJob'">📂 Archive Jobs</button>
   </footer>
 </div>
-
 </body>
 </html>
