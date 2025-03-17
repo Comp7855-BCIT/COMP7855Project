@@ -51,10 +51,11 @@ def initDb():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             userId INTEGER,
             jobTitle TEXT,
-            link TEXT,
             company TEXT,
+            link TEXT,
+            matchScore REAL,
             FOREIGN KEY (userId) REFERENCES users(id)
-        )
+        );
     ''')
     
     # ---------------- WORK EXPERIENCE TABLE ----------------
