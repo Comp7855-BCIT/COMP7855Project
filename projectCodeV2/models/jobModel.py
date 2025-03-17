@@ -1,24 +1,27 @@
 # ----------------------------------------------
 # Title: jobModel.py
 # Description: user add, modify and delete job model
-# Author(s): Feliex
+# Author(s): Felix
 # Date created: Feb 19, 2025
-# Date modified: Mar 8, 2025
+# Date modified: Mar 10, 2025
 # ----------------------------------------------
 import sqlite3
 
 class JobModel:
     
     @staticmethod
-    def createJob(userId, jobTitle, location, industry, deadline, salaryRange, experienceLevel, rate, description, status, link, company):
+    def createJob(userId, jobTitle, location, industry, deadline, salaryRange, 
+                  experienceLevel, rate, description, status, link, company):
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
         
-        # Insert job into the database
         cursor.execute('''
-            INSERT INTO jobs (userId, jobTitle, location, industry, deadline, salaryRange, experienceLevel, rate, description, status, link, company)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)
-        ''', (userId, jobTitle, location, industry, deadline, salaryRange, experienceLevel, rate, description, status, link, company))
+            INSERT INTO jobs (userId, jobTitle, location, industry, deadline, 
+                              salaryRange, experienceLevel, rate, 
+                              description, status, link, company)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (userId, jobTitle, location, industry, deadline, salaryRange, 
+              experienceLevel, rate, description, status, link, company))
 
         conn.commit()
         conn.close()
@@ -34,6 +37,22 @@ class JobModel:
         return jobs
 
     @staticmethod
+    def getJobsByStatus(userId, status):
+        """
+        Returns only jobs for a given user with the matching status.
+        """
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT * FROM jobs 
+            WHERE userId = ? 
+              AND status = ?
+        ''', (userId, status))
+        jobs = cursor.fetchall()
+        conn.close()
+        return jobs
+
+    @staticmethod
     def getJobById(jobId):
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
@@ -43,14 +62,18 @@ class JobModel:
         return job
 
     @staticmethod
-    def updateJob(jobId, jobTitle, location, industry, deadline, salaryRange, experienceLevel, rate, description, status, link, company):
+    def updateJob(jobId, jobTitle, location, industry, deadline, salaryRange, 
+                  experienceLevel, rate, description, status, link, company):
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
         cursor.execute('''
             UPDATE jobs
-            SET jobTitle = ?, location = ?, industry = ?, deadline = ?, salaryRange = ?, experienceLevel = ?, rate = ?, description = ?, status = ?, link=?, company=?
+            SET jobTitle = ?, location = ?, industry = ?, deadline = ?, 
+                salaryRange = ?, experienceLevel = ?, rate = ?, 
+                description = ?, status = ?, link = ?, company = ?
             WHERE id = ?
-        ''', (jobTitle, location, industry, deadline, salaryRange, experienceLevel, rate, description, status, link, company, jobId))
+        ''', (jobTitle, location, industry, deadline, salaryRange, 
+              experienceLevel, rate, description, status, link, company, jobId))
         conn.commit()
         conn.close()
         print("Job updated successfully.")
@@ -63,18 +86,16 @@ class JobModel:
         conn.commit()
         conn.close()
         print("Job deleted successfully.")
-        
+    
+    # The rest of your placeholders remain unchanged
     @staticmethod
     def getJobsByFilters():
         pass
-    #Retrieves jobs based on filters like archive
     
     @staticmethod
     def saveJobSuggestions(userId, jobTitle, company, link):
         pass
-    #Save into database jobs suggestions
     
     @staticmethod
     def getJobSuggestions(userId):
         pass
-    #reteive into database jobs suggestions so display them

@@ -3,7 +3,7 @@
 # Description: user add, modify and delete job controller
 # Author(s): Jasmine
 # Date created: Feb 28, 2025
-# Date modified: Mar 8, 2025
+# Date modified: Mar 10, 2025
 # ----------------------------------------------
 from flask import render_template, request, redirect, url_for
 from models.jobModel import JobModel
@@ -12,10 +12,16 @@ class JobController:
 
     @staticmethod
     def viewJobs(userId):
-        # Get jobs for the user from the database
+        # Get all jobs for the user
         jobs = JobModel.getJobs(userId)
         return jobs
     
+    @staticmethod
+    def viewJobsByStatus(userId, status):
+        # Only the jobs matching a certain status
+        jobs = JobModel.getJobsByStatus(userId, status)
+        return jobs
+
     @staticmethod
     def newJob(jobId, userId):
         if request.method == 'POST':
@@ -33,16 +39,19 @@ class JobController:
             company = request.form['job-company']
 
             if jobId:
-                # Update the existing job
-                JobModel.updateJob(jobId, title, location, industry, deadline, salary, level, rate, description, status, link,company)
+                # Update existing job
+                JobModel.updateJob(jobId, title, location, industry, deadline, 
+                                   salary, level, rate, description, status, 
+                                   link, company)
             else:
                 # Create a new job
-                JobModel.createJob(userId, title, location, industry, deadline, salary, level, rate, description, status, link,company)
+                JobModel.createJob(userId, title, location, industry, deadline, 
+                                   salary, level, rate, description, status, 
+                                   link, company)
         
-            # Redirect to the main page (index)
             return redirect(url_for('index'))
 
-        # If jobId is provided, fetch the job details for editing
+        # If GET and jobId is provided, fetch the job details
         job = None
         if jobId:
             job = JobModel.getJobById(jobId)
@@ -56,6 +65,5 @@ class JobController:
     
     @staticmethod
     def viewJobSuggestions(userId):
+        # example for job suggestions, not implemented
         pass
-    #view job suggestion on html page
-    #will call on jobModel.getJobSuggestions(userId)

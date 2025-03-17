@@ -1,20 +1,18 @@
 # ----------------------------------------------
 # Title: main.py
-# Description: Run flask
-# Author(s): Jasmine 
+# Description: Run flask with job status filtering
+# Author(s): Jasmine
 # Date created: Feb 28, 2025
-# Date modified: Mar 8, 2025
+# Date modified: Mar 10, 2025
 # ----------------------------------------------
-from flask import Flask, render_template, redirect, url_for, session, request
+from flask import Flask, render_template, redirect, url_for, session, request, flash
 from controllers.userController import UserController
 from controllers.jobController import JobController
 from controllers.experienceController import ExperienceController
 from initDb import initDb
 
-
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
-
 
 ######### Main page ######### 
 @app.route('/')
@@ -22,7 +20,17 @@ def index():
     if 'userId' not in session:
         return redirect(url_for('login'))
     userId = session['userId']
-    jobs = JobController.viewJobs(userId)
+
+    # Read the 'status' from query params
+    status_filter = request.args.get('status', '')
+
+    # If user selected a specific status
+    if status_filter:
+        jobs = JobController.viewJobsByStatus(userId, status_filter)
+    else:
+        # Otherwise, show all jobs
+        jobs = JobController.viewJobs(userId)
+
     username = UserController.getCurrentUsername()
     return render_template('index.html', jobs=jobs, username=username)
 
@@ -33,18 +41,14 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
 
-        # Use userController to verify credentials
         userId = UserController.validateLogin(username, password)
         if userId:
-            # If successful, store in session and redirect
             session['userId'] = userId
             return redirect(url_for('index'))
         else:
-            # If validation fails, show error or redirect
             flash("Invalid username or password.")
             return redirect(url_for('login'))
 
-    # GET request => show login form
     return render_template('login.html')
 
 @app.route('/profile', methods=['GET', 'POST'])
@@ -56,17 +60,14 @@ def profile():
 @app.route('/signUp', methods=['GET', 'POST'])
 def signUp():
     if request.method == 'POST':
-        # Gather form data from signUp.html
         full_name = request.form.get('full-name')
         email = request.form.get('email')
         phone = request.form.get('phone')
         username = request.form.get('user-name')
         password = request.form.get('password')
 
-        # Call userController to handle sign-up logic
         return UserController.signUp(full_name, email, phone, username, password)
 
-    # If GET, just render the sign-up form
     return render_template('signUp.html')
 
 @app.route('/signout')
@@ -90,7 +91,7 @@ def deleteJob(jobId):
 
 @app.route('/archiveJob', methods=['GET', 'POST'])
 def archiveJob():
-    print(f"Job archive page")
+    print("Job archive page")
     return render_template('archiveJob.html')
 
 ######### Expirence page ######### 
@@ -100,45 +101,44 @@ def newExperience():
 
 @app.route('/newWork', methods=['GET', 'POST'])
 def newWork():
-    print(f"Work page")
+    print("Work page")
     return render_template('newWork.html') 
 
 @app.route('/newVolunteer', methods=['GET', 'POST'])
 def newVolunteer():
-    print(f"Volunteer page")
+    print("Volunteer page")
     return render_template('newVolunteer.html')
 
 @app.route('/newProject', methods=['GET', 'POST'])
 def newProject():
-    print(f"Project page")
+    print("Project page")
     return render_template('newProject.html')
 
 @app.route('/newAward', methods=['GET', 'POST'])
 def newAward():
-    print(f"Award page")
+    print("Award page")
     return render_template('newAward.html')
-@app.route('/newCertification', methods=['GET', 'POST'])
 
+@app.route('/newCertification', methods=['GET', 'POST'])
 def newCertification():
-    print(f"Certification page")
+    print("Certification page")
     return render_template('newCertification.html')
 
 @app.route('/newEducation', methods=['GET', 'POST'])
 def newEducation():
-    print(f"Education page")
+    print("Education page")
     return render_template('newEducation.html')
 
 ######### Documents page ######### 
 @app.route('/resume', methods=['GET', 'POST'])
 def resume():
-    print(f"Resume page")
+    print("Resume page")
     return render_template('resume.html')
 
 @app.route('/coverLetter', methods=['GET', 'POST'])
 def coverLetter():
-    print(f"Cover letter page")
+    print("Cover letter page")
     return render_template('coverLetter.html')
-
 
 if __name__ == '__main__':
     initDb()

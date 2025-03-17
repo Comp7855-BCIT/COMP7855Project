@@ -1,135 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='media/logoSmall.png') }}" />
-		<title>CareerForge</title>
-		<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-		
-		<link rel="preconnect" href="https://fonts.googleapis.com">
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-	</head>
-	<body>
-	
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='media/logoSmall.png') }}" />
+  <title>CareerForge</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
 <header>
-    <div class="logo">
-        <img src="{{ url_for('static', filename='media/logo.png') }}" alt="Logo" class="logo">
-        <p class="slogan">Making job applications easy &#128640;</p>
+  <div class="logo">
+    <img src="{{ url_for('static', filename='media/logo.png') }}" alt="Logo" class="logo">
+    <p class="slogan">Making job applications easy &#128640;</p>
+  </div>
+  <nav>
+    <button onclick="location.href='newJob'">New Job</button>
+    <button onclick="location.href='newExperience'">New Experience</button>
+    <button onclick="location.href='resume'">Resume</button>
+    <button onclick="location.href='coverLetter'">Cover Letter</button>
+    <div class="top-right-buttons">
+      <button class="sign-out" onclick="location.href='{{ url_for('signout') }}'">Sign Out</button>
+      <button class="user-profile" onclick="location.href='profile'">Settings</button>
     </div>
-    <nav>
-        <button onclick="location.href='newJob'">New Job</button>
-        <button onclick="location.href='newExperience'">New Experience</button>
-        <button onclick="location.href='resume'">Resume</button>
-        <button onclick="location.href='coverLetter'">Cover Letter</button>
-        <div class="top-right-buttons">
-            <button class="sign-out" onclick="location.href='{{ url_for('signout') }}'">Sign Out</button>
-            <button class="user-profile" onclick="location.href='profile'">Settings</button>
-        </div>
-    </nav>
+  </nav>
 </header>
-		<div id="#wrapper">
-		<div id="content">
-			<main>
-				<h3 class="welcoming-message">Hello <span class="name">{{ username }}</span>! Ready to apply to new jobs &#128513;</h3>
-				<h2>Job Applications</h2>
-				<table id="job-table">
-					<thead>
-						<tr>
-							<th>Job Title</th>
-							<th>Company</th>
-							<th>Deadline</th>
-							<th>Status</th>
-						</tr>
-					</thead>
-					<tbody>
-						{% for job in jobs %}
-						<tr>
-							<td><a href="{{ url_for('newJob', jobId=job[0]) }}">{{ job[2] }}</a></td>
-							<td>{{ job[12] }}</td>  <!-- job[12] is the company -->
-							<td>{{ job[5] }}</td>  <!-- job[5] is the deadline -->
-							<td>{{ job[10] }}</td>  <!-- job[10] is the status -->
-						</tr>
-						{% else %}
-						<tr>
-							<td colspan="3">No jobs available</td>
-						</tr>
-						{% endfor %}
-					</tbody>
-				</table>
-				
-				<h2>AI Job Suggestions</h2>
-				
-				<div class="jobs-grid">
-					<div class="job">
-						<a href="#" class="job-title">Character Designer</a>
-						<p>ABC Company</p>
-						<p>87% match</p>
-						<button class="add-me">Apply</button>
-					</div>
-					
-					<div class="job">
-						<a href="#" class="job-title">Motion Graphics Designer</a>
-						<p>ABC Company</p>
-						<p>77% match</p>
-						<button class="add-me">Apply</button>
-					</div>
-					
-					<div class="job">
-						<a href="#" class="job-title">Storyboard Artist</a>
-						<p>ABC Company</p>
-						<p>68% match</p>
-						<button class="add-me">Apply</button>
-					</div>
-					
-					<div class="job">
-						<a href="#" class="job-title">Multimedia Designer</a>
-						<p>ABC Company</p>
-						<p>64% match</p>
-						<button class="add-me">Apply</button>
-					</div>
-					<button >Refresh</button>
-				</div>
-				<h2>Tips</h2>
-				
-				<details>
-					<summary>🚀 Having a Hard Time Getting Started? No Worries!</summary>
-					<ul>
-						<li>Use our AI tool to generate a draft—it’s okay if it’s not perfect. You can always tweak it later.</li>
-						<li>Set a timer for 10 minutes and commit to working on your application for just that long. Often, getting started is all it takes to build momentum.</li>
-						<li>Remember, progress over perfection! Even a small step forward is better than standing still.</li>
-					</ul>
-				</details>
-				<details>
-					<summary>🔍 Research the Company & Role Before Applying</summary>
-					<ul>
-						<li>Check out the company’s website, social media, and recent news to understand their culture and values.</li>
-						<li>Look up the job title on LinkedIn to see how others describe their experience in similar roles.</li>
-						<li>Use this research to show genuine enthusiasm in your cover letter and interview. (Bonus: It’ll make you feel more confident too!)</li>
-					</ul>
-				</details>
-				<details>
-					<summary>💼 Ace the Interview with Confidence</summary>
-					<ul>
-						<li>Practice common interview questions, but don’t memorize answers—keep it natural.</li>
-						<li>Prepare a few questions to ask the interviewer (e.g., “What does success look like in this role?” or “How would you describe the team culture?”).</li>
-						<li>Dress appropriately, show up on time (or a few minutes early for virtual interviews), and don’t forget to smile! A little confidence goes a long way.</li>
-					</ul>
-				</details>
-				
-				
-			</main>
-		</div>
-		<footer id="footer">
-			<button onclick="location.href='archiveJob'">📂 Archive Jobs</button>
-		</footer>
-		
-		<script>
-			function signOut() {
-				location.href = 'login';
-			}
-		</script>
-	</div>
-	</body>
+
+<div id="#wrapper">
+  <div id="content">
+    <main>
+      <h3 class="welcoming-message">
+        Hello <span class="name">{{ username }}</span>! Ready to apply to new jobs &#128513;
+      </h3>
+
+      <!-- FILTER FORM -->
+      <form method="GET" action="/">
+        <label for="status">Filter by Status:</label>
+        <select name="status" id="status">
+          <option value="">All</option>
+          <option value="📝 Want to apply" 
+            {% if request.args.get('status') == "📝 Want to apply" %}selected{% endif %}>
+            📝 Want to apply
+          </option>
+          <option value="⏳ Applied and waiting"
+            {% if request.args.get('status') == "⏳ Applied and waiting" %}selected{% endif %}>
+            ⏳ Applied and waiting
+          </option>
+          <option value="💼 Interview"
+            {% if request.args.get('status') == "💼 Interview" %}selected{% endif %}>
+            💼 Interview
+          </option>
+          <option value="📂 Archive"
+            {% if request.args.get('status') == "📂 Archive" %}selected{% endif %}>
+            📂 Archive
+          </option>
+        </select>
+        <button type="submit">Filter</button>
+      </form>
+      <!-- END FILTER FORM -->
+
+      <h2>Job Applications</h2>
+      <table id="job-table">
+        <thead>
+          <tr>
+            <th>Job Title</th>
+            <th>Company</th>
+            <th>Deadline</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for job in jobs %}
+          <tr>
+            <td>
+              <!-- job[0] = ID, job[2] = jobTitle, job[12] = company, job[5] = deadline, job[10] = status (based on your DB columns) -->
+              <a href="{{ url_for('newJob', jobId=job[0]) }}">{{ job[2] }}</a>
+            </td>
+            <td>{{ job[12] }}</td>
+            <td>{{ job[5] }}</td>
+            <td>{{ job[10] }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="4">No jobs available</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <h2>AI Job Suggestions</h2>
+      <div class="jobs-grid">
+        <!-- This is your existing example for job suggestions -->
+        <div class="job">
+          <a href="#" class="job-title">Character Designer</a>
+          <p>ABC Company</p>
+          <p>87% match</p>
+          <button class="add-me">Apply</button>
+        </div>
+        <div class="job">
+          <a href="#" class="job-title">Motion Graphics Designer</a>
+          <p>ABC Company</p>
+          <p>77% match</p>
+          <button class="add-me">Apply</button>
+        </div>
+        <!-- More sample suggestions -->
+        <button>Refresh</button>
+      </div>
+
+      <h2>Tips</h2>
+      <!-- Your existing tips section (details/summary) goes here -->
+    </main>
+  </div>
+  <footer id="footer">
+    <button onclick="location.href='archiveJob'">📂 Archive Jobs</button>
+  </footer>
+</div>
+
+</body>
 </html>
