@@ -116,23 +116,18 @@ def archiveJob():
     return render_template('archiveJob.html')
 
 ######### Expirence page ######### 
+from flask import jsonify
 @app.route('/newExperience', methods=['GET', 'POST'])
 def newExperience():
-    if request.method == 'POST':
-        # If your POST is just for a future plan, you can leave it blank or redirect.
-        return render_template('newExperience.html')
-    else:
-        # Make sure user is logged in
-        if 'userId' not in session:
-            return redirect(url_for('login'))
-        userId = session['userId']
+    return ExperienceController.new_experience()
 
-        # Retrieve a dictionary of experiences from the model
-        from models.experienceModel import ExperienceModel
-        experiences = ExperienceModel.getAllExperiencesForUser(userId)
-        
-        # Pass these into newExperience.html
-        return render_template('newExperience.html', experiences=experiences)
+@app.route('/api/experiences', methods=['GET'])
+def getExperiences():
+    return ExperienceController.get_experiences()
+
+@app.route('/deleteExperience', methods=['POST'])
+def deleteExperience():
+    return ExperienceController.delete_experience()
 
 @app.route('/newWork', methods=['GET', 'POST'])
 def newWork():
