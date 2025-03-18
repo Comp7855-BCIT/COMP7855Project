@@ -31,7 +31,7 @@ class apiModel:
 
         # Format job data for API
         job_list = [
-            {"title": job[2], "industry": job[3], "description": job[8]}
+            {"title": job[2], "industry": job[4], "description": job[9]}  # Ensure correct column indices
             for job in jobs
         ]
         job_data = json.dumps(job_list)
@@ -63,17 +63,23 @@ class apiModel:
                 model="llama3-70b-8192",
             )
 
-            # Extract response
-            # Print the entire chat_completion object to see the full API response
-            print("Full API response:", chat_completion)
+            # Extract API response
+            response_text = chat_completion.choices[0].message.content.strip()
 
-            #response = chat_completion.choices[0].message.content
-            #job_suggestions = json.loads(response)  # Convert string to JSON
+            # Print full response for debugging
+            print("\nReceived API Response:\n", response_text)
+
+            # Convert API response to JSON
+            try:
+                job_suggestions = json.loads(response_text)  # Ensure it's properly formatted JSON
+            except json.JSONDecodeError:
+                print("Error: Could not parse API response as JSON.")
+                return None
 
             # Save suggestions to database
-            #JobModel.saveJobSuggestions(userId, job_suggestions)
-            
-            #return job_suggestions  # Return the suggestions
+            JobModel.saveJobSuggestions(userId, job_suggestions)
+
+            return job_suggestions  # Return the suggestions
 
         except Exception as e:
             print(f"Error communicating with Groq API: {e}")

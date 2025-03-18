@@ -11,6 +11,7 @@ from controllers.userController import UserController
 from controllers.jobController import JobController
 from controllers.experienceController import ExperienceController
 from models.jobModel import JobModel
+from models.apiModel import apiModel
 from initDb import initDb
 
 # Add this line so Python knows what JobModel is
@@ -177,4 +178,7 @@ def coverLetter():
 
 if __name__ == '__main__':
     initDb()
+    userId = 1
+    suggestions = JobModel.getJobSuggestions(userId)
+    print(suggestions)  # See stored AI-generated job recommendations
     app.run(debug=True)

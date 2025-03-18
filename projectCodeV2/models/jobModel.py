@@ -95,19 +95,26 @@ class JobModel:
         pass
 
     @staticmethod
-    def saveJobSuggestions(userId, job_suggestions):
+    def saveJobSuggestions(userId, suggestions):
         """
-        Save AI-generated job suggestions into the database.
+        Save AI-generated job suggestions to the database.
+        Clears old suggestions before inserting new ones.
         """
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
 
-        # Insert each job suggestion into the jobSuggestions table
-        for job in job_suggestions:
-            cursor.execute("""
-                INSERT INTO jobSuggestions (userId, jobTitle, company, link, matchScore)
+        # Clear old suggestions for the user
+        cursor.execute("DELETE FROM jobSuggestions WHERE userId = ?", (userId,))
+
+        # Insert new suggestions
+        for suggestion in suggestions:
+            cursor.execute(
+                """
+                INSERT INTO jobSuggestions (userId, jobTitle, company, link, matchScore) 
                 VALUES (?, ?, ?, ?, ?)
-            """, (userId, job['jobTitle'], job['company'], job['link'], job['matchScore']))
+                """,
+                (userId, suggestion["jobTitle"], suggestion["company"], suggestion["link"], suggestion["matchScore"])
+            )
 
         conn.commit()
         conn.close()
