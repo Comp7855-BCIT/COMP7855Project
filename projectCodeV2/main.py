@@ -22,10 +22,30 @@ app.secret_key = "your_secret_key"
 ######### Main page ######### 
 @app.route('/')
 def index():
-    user_id = 1  # Replace with session-based user ID
-    jobs = JobModel.getJobs(user_id)
-    aiSuggestions = JobModel.getJobSuggestions(user_id)
-    return render_template('index.html', jobs=jobs, aiSuggestions=aiSuggestions, user_id=user_id)
+    if 'userId' not in session:
+        return redirect(url_for('login'))
+    userId = session['userId']
+
+    # Grab the chosen status from query string
+    status = request.args.get('status', '')
+
+    if status:
+        # Filter jobs by that status
+        jobs = JobModel.getJobsByStatus(userId, status)
+    else:
+        # No filter => get all user's jobs
+        jobs = JobModel.getJobs(userId)
+
+    # AI suggestions
+    aiSuggestions = JobModel.getJobSuggestions(userId)
+
+    return render_template(
+        'index.html',
+        jobs=jobs,
+        aiSuggestions=aiSuggestions,
+        user_id=userId
+    )
+
 
 @app.route('/generateSuggestions')
 def generateSuggestions():
