@@ -78,7 +78,8 @@ class apiModel:
 
             # Save suggestions to database
             JobModel.saveJobSuggestions(userId, job_suggestions)
-
+            suggestions = apiModel.getJobSuggestions(userId)
+            print(suggestions)  # See stored AI-generated job recommendations
             return job_suggestions  # Return the suggestions
 
         except Exception as e:
