@@ -5,135 +5,115 @@
 # Date created: Mar 8, 2025
 # Date modified: Mar 8, 2025
 # ----------------------------------------------
-# experienceModel.py
 import sqlite3
 
 class ExperienceModel:
+    #Work, Volunteer, Project, Award, Certificate, Education
+    #similar to job model
+    #below are examples functions
 
-    @staticmethod
-    def addWork(userId, title, company, location, startDate, endDate, responsibilities):
-        """
-        Inserts a record into the workExperience table.
-        """
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO workExperience (userId, jobTitle, company, location, startDate, endDate, responsibilities)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', (userId, title, company, location, startDate, endDate, responsibilities))
-        conn.commit()
-        conn.close()
+    def __init__(self, db_path='database.db'):
+        self.db_path = db_path
 
-    @staticmethod
-    def addVolunteer(userId, role, organization, description):
-        """
-        Inserts a record into the volunteerExperience table.
-        """
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO volunteerExperience (userId, role, organization, description)
-            VALUES (?, ?, ?, ?)
-        ''', (userId, role, organization, description))
-        conn.commit()
-        conn.close()
-
-    @staticmethod
-    def addProject(userId, projectName, technologies, description, impact):
-        """
-        Inserts a record into the projects table.
-        """
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO projects (userId, projectName, technologies, description, impact)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (userId, projectName, technologies, description, impact))
-        conn.commit()
-        conn.close()
-
-    @staticmethod
-    def addAward(userId, awardName, issuer, year):
-        """
-        Inserts a record into the awards table.
-        """
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO awards (userId, awardName, issuer, year)
-            VALUES (?, ?, ?, ?)
-        ''', (userId, awardName, issuer, year))
-        conn.commit()
-        conn.close()
-
-    @staticmethod
-    def addCertification(userId, certName, issuer, year):
-        """
-        Inserts a record into the certifications table.
-        """
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO certifications (userId, certificateName, issuer, year)
-            VALUES (?, ?, ?, ?)
-        ''', (userId, certName, issuer, year))
-        conn.commit()
-        conn.close()
-
-    @staticmethod
-    def addEducation(userId, degree, university, graduationYear):
-        """
-        Inserts a record into the education table.
-        """
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO education (userId, degree, university, graduationYear)
-            VALUES (?, ?, ?, ?)
-        ''', (userId, degree, university, graduationYear))
-        conn.commit()
-        conn.close()
-
-    @staticmethod
-    def getAllExperiencesForUser(userId):
-        """
-        Returns a dictionary containing combined text summaries of the user's
-        experiences from each category.
-        """
-        conn = sqlite3.connect('database.db')
+    def connect(self):
+        """Connect to the database"""
+        return sqlite3.connect(self.db_path)
+    
+    
+    def add_experience(self, user_id, category, title, organization, start_date, end_date, description):
+        conn = self.connect()
         cursor = conn.cursor()
 
-        # Work Experience
-        cursor.execute("SELECT jobTitle, company, startDate, endDate, responsibilities FROM workExperience WHERE userId = ?", (userId,))
-        work_experiences = cursor.fetchall()
-
-        # Volunteer Experience
-        cursor.execute("SELECT role, organization, description FROM volunteerExperience WHERE userId = ?", (userId,))
-        volunteer_experiences = cursor.fetchall()
-
-        # Projects
-        cursor.execute("SELECT projectName, description, technologies, impact FROM projects WHERE userId = ?", (userId,))
-        projects = cursor.fetchall()
-
-        # Awards
-        cursor.execute("SELECT awardName, issuer, year FROM awards WHERE userId = ?", (userId,))
-        awards = cursor.fetchall()
-
-        # Certifications
-        cursor.execute("SELECT certificateName, issuer, year FROM certifications WHERE userId = ?", (userId,))
-        certifications = cursor.fetchall()
-
-        # Education
-        cursor.execute("SELECT degree, university, graduationYear FROM education WHERE userId = ?", (userId,))
-        education = cursor.fetchall()
-
-        conn.close()
-
-        return {
-            "work": work_experiences,
-            "volunteer": volunteer_experiences,
-            "project": projects,
-            "award": awards,
-            "certificate": certifications,
-            "education": education,
+        query_map = {
+            'Work': "INSERT INTO workExperience (userId, jobTitle, company, startDate, endDate, responsibilities) VALUES (?, ?, ?, ?, ?, ?)",
+            'Volunteer': "INSERT INTO volunteerExperience (userId, role, organization, description) VALUES (?, ?, ?, ?)",
+            'Project': "INSERT INTO projects (userId, projectName, description) VALUES (?, ?, ?)",
+            'Award': "INSERT INTO awards (userId, awardName, issuer, year) VALUES (?, ?, ?, ?)",
+            'Certificate': "INSERT INTO certifications (userId, certificateName, issuer, year) VALUES (?, ?, ?, ?)",
+            'Education': "INSERT INTO education (userId, degree, university, graduationYear) VALUES (?, ?, ?, ?)"
         }
+
+        query = query_map.get(category)
+        if query:
+            if category in ['Work']:
+                values = (user_id, title, organization, start_date, end_date, description)
+            elif category in ['Volunteer']:
+                values = (user_id, title, organization, description)
+            elif category in ['Project']:
+                values = (user_id, title, description)
+            elif category in ['Award', 'Certificate', 'Education']:
+                values = (user_id, title, organization, start_date)
+            else:
+                values = (user_id, title, organization, start_date, end_date, description)
+
+        cursor.execute(query, values)
+        conn.commit()
+
+        conn.close()
+        
+    
+    def get_experiences(self, user_id):
+        """Fetch all experiences of a user"""
+        conn = self.connect()
+        cursor = conn.cursor()
+
+        categories = ["Work", "Volunteer", "Project", "Award", "Certificate", "Education"]
+        experience_data = {}
+
+        for category in categories:
+            table_map = {
+                "Work": "workExperience",
+                "Volunteer": "volunteerExperience",
+                "Project": "projects",
+                "Award": "awards",
+                "Certificate": "certifications",
+                "Education": "education"
+            }
+            column_map = {
+                "Work": "jobTitle",
+                "Volunteer": "role",
+                "Project": "projectName",
+                "Award": "awardName",
+                "Certificate": "certificateName",
+                "Education": "degree"
+            }
+
+            cursor.execute(f"SELECT {column_map[category]} FROM {table_map[category]} WHERE userId = ?", (user_id,))
+            experience_data[category] = [row[0] for row in cursor.fetchall()]
+
+        conn.close()
+        return experience_data 
+
+
+    @staticmethod
+    def updateExperience():
+        pass
+
+
+    def delete_experience(self, user_id, category, title):
+        """Delete an experience from the appropriate table"""
+        conn = self.connect()
+        cursor = conn.cursor()
+
+        table_map = {
+            "Work": "workExperience",
+            "Volunteer": "volunteerExperience",
+            "Project": "projects",
+            "Award": "awards",
+            "Certificate": "certifications",
+            "Education": "education"
+        }
+        column_map = {
+            "Work": "jobTitle",
+            "Volunteer": "role",
+            "Project": "projectName",
+            "Award": "awardName",
+            "Certificate": "certificateName",
+            "Education": "degree"
+        }
+
+        if category in table_map:
+            cursor.execute(f"DELETE FROM {table_map[category]} WHERE userId = ? AND {column_map[category]} = ?", (user_id, title))
+            conn.commit()
+
+        conn.close()
