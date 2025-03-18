@@ -10,6 +10,7 @@ from flask import Flask, render_template, redirect, url_for, session, request, f
 from controllers.userController import UserController
 from controllers.jobController import JobController
 from controllers.experienceController import ExperienceController
+from models.jobModel import JobModel
 from initDb import initDb
 
 # Add this line so Python knows what JobModel is
@@ -21,39 +22,15 @@ app.secret_key = "your_secret_key"
 ######### Main page ######### 
 @app.route('/')
 def index():
-    if 'userId' not in session:
-        return redirect(url_for('login'))
-    userId = session['userId']
+    user_id = 1  # Replace with session-based user ID
+    jobs = JobModel.getJobs(user_id)
+    aiSuggestions = JobModel.getJobSuggestions(user_id)
+    return render_template('index.html', jobs=jobs, aiSuggestions=aiSuggestions, user_id=user_id)
 
-    # Retrieve user's jobs (the ones they personally created)
-    status_filter = request.args.get('status', '')
-    if status_filter:
-        jobs = JobController.viewJobsByStatus(userId, status_filter)
-    else:
-        jobs = JobController.viewJobs(userId)
-
-    username = UserController.getCurrentUsername()
-
-    # Now fetch job suggestions from the jobSuggestions table
-    rawSuggestions = JobModel.getJobSuggestions(userId)
-    aiSuggestions = []
-    for row in rawSuggestions:
-        # (id, userId, jobTitle, company, link, matchScore)
-        aiSuggestions.append({
-            "jobTitle":   row[2],
-            "company":    row[3],
-            "link":       row[4],
-            "matchScore": row[5]
-        })
-
-    return render_template(
-        'index.html',
-        jobs=jobs,
-        username=username,
-        aiSuggestions=aiSuggestions
-    )
-
-
+@app.route('/generateSuggestions')
+def generateSuggestions():
+    user_id = 1  # Replace with session user ID
+    return JobController.generateSuggestions(user_id)
 
 ######### User page ######### 
 @app.route('/login', methods=['GET', 'POST'])
@@ -177,21 +154,6 @@ def resume():
 def coverLetter():
     print("Cover letter page")
     return render_template('coverLetter.html')
-
-@app.route('/generateSuggestions')
-def generateSuggestions():
-    if 'userId' not in session:
-        return redirect(url_for('login'))
-    userId = session['userId']
-    from controllers.apiController import apiController
-    suggestions = apiController.suggestJobs(userId)
-    # suggestions is a list of { jobTitle, company, link, matchScore } 
-    # but also we saved them in DB
-
-    # We can also store them in session if you want immediate display 
-    # but it's simpler to re-fetch from DB on next load
-    return redirect(url_for('index'))
-
 
 if __name__ == '__main__':
     initDb()

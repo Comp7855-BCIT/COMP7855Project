@@ -6,6 +6,7 @@
 # Date modified: Mar 10, 2025
 # ----------------------------------------------
 import sqlite3
+import json
 
 class JobModel:
 
@@ -94,28 +95,33 @@ class JobModel:
         pass
 
     @staticmethod
-    def saveJobSuggestions(userId, jobTitle, company, link, matchScore):
+    def saveJobSuggestions(userId, job_suggestions):
         """
-        Inserts a suggestion into the jobSuggestions table.
+        Save AI-generated job suggestions into the database.
         """
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO jobSuggestions (userId, jobTitle, company, link, matchScore)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (userId, jobTitle, company, link, matchScore))
+
+        # Insert each job suggestion into the jobSuggestions table
+        for job in job_suggestions:
+            cursor.execute("""
+                INSERT INTO jobSuggestions (userId, jobTitle, company, link, matchScore)
+                VALUES (?, ?, ?, ?, ?)
+            """, (userId, job['jobTitle'], job['company'], job['link'], job['matchScore']))
+
         conn.commit()
         conn.close()
-        print("Job suggestion saved successfully.")
 
     @staticmethod
     def getJobSuggestions(userId):
         """
-        Retrieves job suggestions from the jobSuggestions table for the user.
+        Retrieve saved AI job suggestions from the database.
         """
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM jobSuggestions WHERE userId = ?', (userId,))
+        cursor.execute('SELECT jobTitle, company, link, matchScore FROM jobSuggestions WHERE userId = ?', (userId,))
         results = cursor.fetchall()
         conn.close()
-        return results
+
+        # Format results
+        return [{"jobTitle": r[0], "company": r[1], "link": r[2], "matchScore": r[3]} for r in results]

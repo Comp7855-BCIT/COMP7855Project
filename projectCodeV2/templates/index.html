@@ -103,11 +103,11 @@
           </div>
           {% endfor %}
         {% else %}
-          <p>No AI suggestions yet. Click "Refresh" below.</p>
+          <p>No AI suggestions yet. Click "Refresh".</p>
         {% endif %}
-        <button onclick="location.href='{{ url_for('generateSuggestions') }}'">Refresh</button>
+        <button onclick="location.href='{{ url_for('generateSuggestions', userId=user_id) }}'">Refresh</button>
       </div>
-
+      
       <h2>Tips</h2>
       <details>
         <summary>🚀 Having a Hard Time Getting Started? No Worries!</summary>

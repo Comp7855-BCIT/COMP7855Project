@@ -7,6 +7,7 @@
 # ----------------------------------------------
 from flask import render_template, request, redirect, url_for
 from models.jobModel import JobModel
+from models.apiModel import apiModel
 
 class JobController:
 
@@ -67,3 +68,9 @@ class JobController:
     def viewJobSuggestions(userId):
         # example for job suggestions, not implemented
         pass
+
+    @staticmethod
+    def generateSuggestions(userId):
+        # Generate AI job suggestions
+        suggestions = apiModel.generateJobSuggestions(userId)
+        return redirect(url_for('index'))  # Reload page to show suggestions

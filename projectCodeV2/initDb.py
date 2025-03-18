@@ -57,7 +57,6 @@ def initDb():
             FOREIGN KEY (userId) REFERENCES users(id)
         );
     ''')
-    
     # ---------------- WORK EXPERIENCE TABLE ----------------
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS workExperience (
