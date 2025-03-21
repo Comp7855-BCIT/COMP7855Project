@@ -16,7 +16,7 @@ def initDb():
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
-            password TEXT,
+            password TEXT,  -- will store bcrypt-hashed password
             fullName TEXT,
             email TEXT,
             phone TEXT,
@@ -45,6 +45,7 @@ def initDb():
             FOREIGN KEY (userId) REFERENCES users(id)
         )
     ''')
+
     # ---------------- JOB SUGGESTIONS TABLE ----------------
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS jobSuggestions (
@@ -57,6 +58,7 @@ def initDb():
             FOREIGN KEY (userId) REFERENCES users(id)
         );
     ''')
+
     # ---------------- WORK EXPERIENCE TABLE ----------------
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS workExperience (
@@ -132,7 +134,7 @@ def initDb():
         FOREIGN KEY (userId) REFERENCES users(id)
     );
     """)
-    
+
     # ---------------- RESUME TABLE ----------------
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS resume (
@@ -144,6 +146,7 @@ def initDb():
         FOREIGN KEY (jobId) REFERENCES jobs(id)
     );
     """)
+
     # ---------------- COVER LETTER TABLE ----------------
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS coverLetter (
@@ -155,8 +158,6 @@ def initDb():
         FOREIGN KEY (jobId) REFERENCES jobs(id)
     );
     """)
-    
 
     conn.commit()
     conn.close()
-

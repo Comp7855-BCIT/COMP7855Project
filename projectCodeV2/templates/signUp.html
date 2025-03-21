@@ -16,7 +16,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700
+    &family=Raleway:ital,wght@0,100..900;1,100..900&display=swap"
     rel="stylesheet"
   />
 </head>
@@ -67,6 +68,19 @@
           placeholder="≥12 chars, 1 uppercase, 1 special char"
         />
 
+        <!-- Show/Hide password -->
+        <div style="display: inline-flex; align-items: center; margin: 0.5rem 0;">
+          <input
+            type="checkbox"
+            id="showSignUpPwd"
+            onclick="toggleSignUpPassword()"
+            style="margin-right: 0.3rem;"
+          >
+          <label for="showSignUpPwd" style="margin: 0;">
+            Show password
+          </label>
+        </div>
+
         <button type="submit">Save</button>
       </form>
 
@@ -76,5 +90,15 @@
       </p>
     </div>
   </div>
+
+  <script>
+    function toggleSignUpPassword() {
+      const pwdInput = document.getElementById('password');
+      pwdInput.type =
+        document.getElementById('showSignUpPwd').checked
+          ? 'text'
+          : 'password';
+    }
+  </script>
 </body>
 </html>
