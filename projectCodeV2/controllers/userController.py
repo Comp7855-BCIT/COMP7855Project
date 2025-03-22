@@ -86,6 +86,7 @@ class UserController:
         session['userId'] = new_user_id
 
         return redirect(url_for('index'))
+    
 
     @staticmethod
     def getCurrentUser():
@@ -166,3 +167,22 @@ class UserController:
             return redirect(url_for('profile'))
         
         return redirect(url_for('profile'))
+
+    def signUpTemp(full_name, email, phone, username, password): #to be deleted later (it create user to add simulated data in initDb)
+        """
+        Creates a new user after checking:
+         - username availability
+         - password complexity (≥12 chars, 1 uppercase, 1 special char)
+         - hashed password stored in DB
+        """
+
+        # 3) Hash the password before storing
+        hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+        # 4) Create user in the database
+        new_user_id = UserModel.addUser(
+            username, hashed_pw, full_name, email, phone, '', '', ''
+        )
+        
+
+        return new_user_id

@@ -53,10 +53,15 @@
       <p>Don't have an account? <a href="{{ url_for('signUp') }}">Sign up</a></p>
 
       <!-- Buttons for User 1 and User 2 -->
-      <form method="POST" action="{{ url_for('login') }}">
-        <button type="submit" name="userId" value="1">Login as User 1</button>
-        <button type="submit" name="userId" value="2">Login as User 2</button>
-      </form>
+	<div class="note">
+		<p>For testing purpose fill in:</p>
+		<br>
+		<p>Username 1: April</p>
+		<p>Password 1: Qwertyuiop[1</p>
+		<br>
+		<p>Username 2: May</p>
+		<p>Password 2: Qwertyuiop[1</p>
+	</div>
     </div>
   </div>
 
