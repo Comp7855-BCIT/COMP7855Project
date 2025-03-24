@@ -38,20 +38,22 @@ class apiModel:
 
         # Create prompt for the AI
         prompt = f"""
-        Given the following list of jobs that a user is interested in:
+        You are an AI job recommendation assistant. Given the following jobs the user is interested in:
         {job_data}
-        
-        Generate 3 new job suggestions that are relevant based on the provided jobs. 
-        Each suggestion should include:
-        - Job title
-        - Company name (can be fictional)
-        - A job link (fictional URL)
-        - A match score (percentage based on how relevant it is)
 
-        Return the response in JSON format like this:
+        Suggest exactly 3 new jobs in JSON format. Each job must have:
+        - "jobTitle"
+        - "company"
+        - "link" (a fictional URL)
+        - "matchScore" (a percentage from 0-100)
+
+        Respond with **only** valid JSON, no explanations.
+
+        Example:
         [
-            {{"jobTitle": "Example Title", "company": "Example Corp", "link": "http://example.com", "matchScore": 87}},
-            ...
+            {{"jobTitle": "Software Engineer", "company": "TechCorp", "link": "http://techcorp.com", "matchScore": 95}},
+            {{"jobTitle": "Data Scientist", "company": "DataWorks", "link": "http://dataworks.com", "matchScore": 90}},
+            {{"jobTitle": "AI Researcher", "company": "OpenAI", "link": "http://openai.com", "matchScore": 88}}
         ]
         """
 
@@ -63,26 +65,30 @@ class apiModel:
                 model="llama3-70b-8192",
             )
 
-            # Extract API response
-            response_text = chat_completion.choices[0].message.content.strip()
-
-            # Print full response for debugging
-            print("\nReceived API Response:\n", response_text)
-
-            # Convert API response to JSON
-            try:
-                job_suggestions = json.loads(response_text)  # Ensure it's properly formatted JSON
-            except json.JSONDecodeError:
-                print("Error: Could not parse API response as JSON.")
+            # Ensure a valid response is received
+            if not chat_completion or not chat_completion.choices:
+                print("Error: API returned an empty response.")
                 return None
 
-            # Save suggestions to database
+            response_text = chat_completion.choices[0].message.content.strip()
+            
+            # Debugging output
+            print("\nReceived API Response:\n", response_text)
+
+            # Ensure JSON format
+            if not response_text.startswith("[") or not response_text.endswith("]"):
+                print("Error: API response does not start and end with JSON array brackets.")
+                return None
+
+            job_suggestions = json.loads(response_text)  # Parse JSON
+
+            # Save AI-generated suggestions to the database
             JobModel.saveJobSuggestions(userId, job_suggestions)
 
-            return job_suggestions  # Return the suggestions
+            # Return saved suggestions
+            return JobModel.getJobSuggestions(userId)
 
         except Exception as e:
             print(f"Error communicating with Groq API: {e}")
             return None
-
 

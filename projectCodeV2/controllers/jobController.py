@@ -71,6 +71,5 @@ class JobController:
 
     @staticmethod
     def generateSuggestions(userId):
-        # Generate AI job suggestions
-        suggestions = apiModel.generateJobSuggestions(userId)
-        return redirect(url_for('index'))  # Reload page to show suggestions
+        # example for job suggestions, not implemented
+        pass

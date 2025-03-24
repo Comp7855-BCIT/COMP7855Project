@@ -92,21 +92,52 @@
       </table>
 
       <h2>AI Job Suggestions</h2>
-      <div class="jobs-grid">
+      <div class="jobs-grid" id="ai-suggestions">
         {% if aiSuggestions %}
           {% for suggestion in aiSuggestions %}
-          <div class="job">
-            <a href="{{ suggestion.link }}" class="job-title">{{ suggestion.jobTitle }}</a>
-            <p>{{ suggestion.company }}</p>
-            <p>{{ suggestion.matchScore }}% match</p>
-            <button class="add-me">Apply</button>
-          </div>
+            <div class="job">
+              <a href="{{ suggestion.link }}" class="job-title">{{ suggestion.jobTitle }}</a>
+              <p>{{ suggestion.company }}</p>
+              <p>{{ suggestion.matchScore }}% match</p>
+              <button class="add-me">Apply</button>
+            </div>
           {% endfor %}
         {% else %}
           <p>No AI suggestions yet. Click "Refresh".</p>
         {% endif %}
-        <button onclick="location.href='{{ url_for('generateSuggestions', userId=user_id) }}'">Refresh</button>
       </div>
+
+      <!-- Refresh button -->
+      <button id="refresh-suggestions">Refresh</button>
+
+      <script>
+        document.getElementById("refresh-suggestions").addEventListener("click", function() {
+            fetch(`/generateSuggestions/{{ user_id }}`)
+                .then(response => response.json())
+                .then(data => {
+                    const aiContainer = document.getElementById("ai-suggestions");
+                    aiContainer.innerHTML = "";  // Clear existing suggestions
+        
+                    if (data.error) {
+                        aiContainer.innerHTML = `<p>Error: ${data.error}</p>`;
+                        return;
+                    }
+        
+                    data.forEach(job => {
+                        const jobElement = document.createElement("div");
+                        jobElement.classList.add("job");
+                        jobElement.innerHTML = `
+                            <a href="${job.link}" class="job-title">${job.jobTitle}</a>
+                            <p>${job.company}</p>
+                            <p>${job.matchScore}% match</p>
+                            <button class="add-me">Apply</button>
+                        `;
+                        aiContainer.appendChild(jobElement);
+                    });
+                })
+                .catch(error => console.error("Error fetching AI suggestions:", error));
+        });
+        </script>
       
       <h2>Tips</h2>
       <details>

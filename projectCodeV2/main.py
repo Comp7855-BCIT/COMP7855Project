@@ -23,39 +23,21 @@ app.secret_key = "your_secret_key"
 ######### Main page ######### 
 @app.route('/')
 def index():
-    # Check if the user is not logged in and redirect to the login page
-    if 'userId' not in session:
-        return redirect(url_for('login'))
+    user_id = 1  # Replace with actual session user ID
+    jobs = JobModel.getJobs(user_id)
+    ai_suggestions = JobModel.getJobSuggestions(user_id)  # Fetch AI suggestions from DB
+
+    return render_template('index.html', jobs=jobs, aiSuggestions=ai_suggestions, user_id=user_id)
+
+@app.route('/generateSuggestions/<int:userId>')
+def generate_suggestions(userId):
+    # Call the function to generate new AI job suggestions
+    new_suggestions = apiModel.generateJobSuggestions(userId)
     
-    userId = session['userId']
-    
-    username = UserController.getCurrentUsername()
-    
-    # Grab the chosen status from query string
-    status = request.args.get('status', '')
+    if new_suggestions is None:
+        return jsonify({"error": "Failed to fetch AI job suggestions"}), 500
 
-    if status:
-        # Filter jobs by that status
-        jobs = JobModel.getJobsByStatus(userId, status)
-    else:
-        # No filter => get all user's jobs
-        jobs = JobModel.getJobs(userId)
-
-    # AI suggestions
-    aiSuggestions = JobModel.getJobSuggestions(userId)
-
-    return render_template(
-        'index.html',
-        jobs=jobs,
-        aiSuggestions=aiSuggestions,
-        username=username
-    )
-
-
-@app.route('/generateSuggestions')
-def generateSuggestions():
-    user_id = 1  # Replace with session user ID
-    return JobController.generateSuggestions(user_id)
+    return jsonify(new_suggestions)
 
 ######### User page ######### 
 @app.route('/login', methods=['GET', 'POST'])
@@ -183,6 +165,4 @@ def coverLetter():
 if __name__ == '__main__':
     initDb()
     userId = 1
-    suggestions = JobModel.getJobSuggestions(userId)
-    print(suggestions)  # See stored AI-generated job recommendations
     app.run(debug=True, port=8000)
