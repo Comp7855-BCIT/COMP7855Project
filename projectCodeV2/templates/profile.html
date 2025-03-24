@@ -6,165 +6,83 @@
   <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='media/logoSmall.png') }}" />
   <title>Profile</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link 
-    href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700
-    &family=Raleway:ital,wght@0,100..900;1,100..900&display=swap"
-    rel="stylesheet"
-  >
+  		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div id="#wrapper">
-    <header>
-      <div class="logo">
-        <img 
-          src="{{ url_for('static', filename='media/logo.png') }}"
-          alt="Logo" 
-          class="logo"
-        >
-        <p class="slogan">Making job applications easy &#128640;</p>
-      </div>
-      <nav>
-        <button onclick="location.href='/'">Back to Main</button>
-        <div class="top-right-buttons">
-          <button
-            class="sign-out"
-            onclick="location.href='{{ url_for('signout') }}'"
-          >
-            Delete
-          </button>
-        </div>
-      </nav>
-    </header>
-
-    <div id="content">
-      <main>
-        <h1>Settings</h1>
-        <h2>Profile</h2>
-        <form method="POST" action="{{ url_for('profile') }}">
-          <div class="form-row">
-            <div>
-              <label for="full-name">Full name:</label>
-              <input 
-                type="text"
-                id="full-name"
-                name="full-name"
-                value="{{ user[3] if user else '' }}"
-                required
-              >
-            </div>
-            <div>
-              <label for="location">Location:</label>
-              <input 
-                type="text"
-                id="location"
-                name="location"
-                value="{{ user[7] if user else '' }}"
-                required
-              >
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div>
-              <label for="user-name">User name:</label>
-              <input 
-                type="text"
-                id="user-name"
-                name="user-name"
-                value="{{ user[1] if user else '' }}"
-                required
-              >
-            </div>
-            <div>
-              <label for="phone">Phone number:</label>
-              <input 
-                type="text"
-                id="phone"
-                name="phone"
-                value="{{ user[5] if user else '' }}"
-                required
-              >
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div>
-              <label for="password">Password:</label>
-              <input
-                type="password"
-                id="profilePassword"
-                name="password"
-                value="{{ user[2] if user else '' }}"
-                required
-              >
-
-              <!-- Show/Hide password inline -->
-              <div style="display: inline-flex; align-items: center; margin-top: 0.4rem;">
-                <input 
-                  type="checkbox"
-                  id="showProfilePwd"
-                  onclick="toggleProfilePassword()"
-                  style="margin-right: 0.3rem;"
-                >
-                <label for="showProfilePwd" style="margin: 0;">
-                  Show password
-                </label>
-              </div>
-            </div>
-            <div>
-              <label for="email">Email:</label>
-              <input 
-                type="email"
-                id="email"
-                name="email"
-                value="{{ user[4] if user else '' }}"
-                required
-              >
-            </div>
-          </div>
-
-          <h3>Optional:</h3>
-          <div class="form-row">
-            <div>
-              <label for="linkedin">LinkedIn url:</label>
-              <input 
-                type="url"
-                id="linkedin"
-                name="linkedin"
-                value="{{ user[6] if user else '' }}"
-              >
-            </div>
-            <div>
-              <label for="portfolio">Portfolio url:</label>
-              <input 
-                type="url"
-                id="portfolio"
-                name="portfolio"
-                value="{{ user[8] if user else '' }}"
-              >
-            </div>
-          </div>
-
-          <button type="submit">Save</button>
-        </form>
-
-        <h2>Prefrence</h2>
-        <p>template document: layout and colour</p>
-      </main>
+	<div id="#wrapper">
+  <header>
+    <div class="logo">
+      <img src="{{ url_for('static', filename='media/logo.png') }}" alt="Logo" class="logo">
+      <p class="slogan">Making job applications easy &#128640;</p>
     </div>
-    <footer id="footer"></footer>
-  </div>
+    <nav>
+      <button onclick="location.href='/'">Back to Main</button>
+	        <div class="top-right-buttons">
+        <button class="sign-out" onclick="location.href='{{ url_for('signout') }}'">Delete</button>
+        
+      </div>
+    </nav>
+  </header>
+<div id="content">
+  <main>
+    <h1>Settings</h1>
+	<h2>Profile</h2>
+    <form method="POST" action="{{ url_for('profile') }}">
+	  <div class="form-row">
+		<div>
+			<label for="full-name">Full name:</label>
+			<input type="text" id="full-name" name="full-name" value="{{ user[3] if user else '' }}" required>
+		</div>
+		<div>
+			<label for="location">Location:</label>
+			<input type="text" id="location" name="location" value="{{ user[7] if user else '' }}" required>
+		</div>
+	  </div>
+	  <div class="form-row">
+		<div>
+			<label for="user-name">User name:</label>
+			<input type="text" id="user-name" name="user-name" value="{{ user[1] if user else '' }}" required>
+		</div>
+		<div>
+			<label for="phone">Phone number:</label>
+			<input type="text" id="phone" name="phone" value="{{ user[5] if user else '' }}" required>
+		</div>
+	  </div>
+      
+	  <div class="form-row">
+		<div>
+			
+			<label for="password">Password:</label>
+			<input type="password" id="password" name="password" value="{{ user[2] if user else '' }}" required>
+		</div>
+		<div>
+			<label for="email">Email:</label>
+			<input type="email" id="email" name="email" value="{{ user[4] if user else '' }}" required>
+		</div>
+	  </div>
 
-  <script>
-    function toggleProfilePassword() {
-      const pwdField = document.getElementById('profilePassword');
-      pwdField.type =
-        document.getElementById('showProfilePwd').checked
-          ? 'text'
-          : 'password';
-    }
-  </script>
+      <h3>Optional:</h3>
+	  	  <div class="form-row">
+		<div>
+			<label for="linkedin">LinkedIn url:</label>
+			<input type="url" id="linkedin" name="linkedin" value="{{ user[6] if user else '' }}">
+		</div>
+		<div>
+			<label for="portfolio">Portfolio url:</label>
+      <input type="url" id="portfolio" name="portfolio" value="{{ user[8] if user else '' }}">
+		</div>
+	  </div>
+
+      <button type="submit">Save</button>
+    </form>
+	 <h2>Prefrence</h2>
+	 <p>template document: layout and colour</p>
+  </main>
+  </div>
+    <footer id="footer">    
+  </footer>
+	</div>
 </body>
 </html>

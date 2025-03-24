@@ -23,14 +23,10 @@ app.secret_key = "your_secret_key"
 ######### Main page ######### 
 @app.route('/')
 def index():
-    # Check if the user is not logged in and redirect to the login page
     if 'userId' not in session:
         return redirect(url_for('login'))
-    
     userId = session['userId']
-    
-    username = UserController.getCurrentUsername()
-    
+
     # Grab the chosen status from query string
     status = request.args.get('status', '')
 
@@ -48,7 +44,7 @@ def index():
         'index.html',
         jobs=jobs,
         aiSuggestions=aiSuggestions,
-        username=username
+        user_id=userId
     )
 
 
@@ -185,4 +181,4 @@ if __name__ == '__main__':
     userId = 1
     suggestions = JobModel.getJobSuggestions(userId)
     print(suggestions)  # See stored AI-generated job recommendations
-    app.run(debug=True, port=8000)
+    app.run(debug=True)
