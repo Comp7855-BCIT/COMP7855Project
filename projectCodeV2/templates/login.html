@@ -6,33 +6,73 @@
   <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='media/logoSmall.png') }}" />
   <title>User Login</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-  		<link rel="preconnect" href="https://fonts.googleapis.com">
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link 
+    href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700
+    &family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" 
+    rel="stylesheet"
+  >
 </head>
 <body>
-	<div id="#wrapper">
-  <div class="login-container">
+  <div id="#wrapper">
+    <div class="login-container">
       <div class="logo-login">
-      <img src="{{ url_for('static', filename='media/logo.png') }}" alt="Logo" class="logo">
-      <p class="slogan">Making job applications easy &#128640;</p>
-    </div>
-    <h1>Login</h1>
-    <form method="POST" action="{{ url_for('login') }}">
-      <label for="username">Username:</label>
-      <input type="text" id="username" name="username" required>
-      <label for="password">Password:</label>
-      <input type="password" id="password" name="password" required>
-      <button type="submit" >Login</button>
-    </form>
-    <p>Don't have an account? <a href="{{ url_for('signUp') }}">Sign up</a></p>
+        <img 
+          src="{{ url_for('static', filename='media/logo.png') }}"
+          alt="Logo"
+          class="logo"
+        >
+        <p class="slogan">Making job applications easy &#128640;</p>
+      </div>
 
-    <!-- Buttons for User 1 and User 2 -->
-    <form method="POST" action="{{ url_for('login') }}">
-      <button type="submit" name="userId" value="1">Login as User 1</button>
-      <button type="submit" name="userId" value="2">Login as User 2</button>
-    </form>
-  </div>
+      <h1>Login</h1>
+      <form method="POST" action="{{ url_for('login') }}">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+
+        <!-- Show/Hide password -->
+        <div style="display: inline-flex; align-items: center; margin: 0.5rem 0;">
+          <input
+            type="checkbox"
+            id="showLoginPwd"
+            onclick="toggleLoginPassword()"
+            style="margin-right: 0.3rem;"
+          >
+          <label for="showLoginPwd" style="margin: 0;">
+            Show password
+          </label>
+        </div>
+
+        <button type="submit">Login</button>
+      </form>
+
+      <p>Don't have an account? <a href="{{ url_for('signUp') }}">Sign up</a></p>
+
+      <!-- Buttons for User 1 and User 2 -->
+	<div class="note">
+		<p>For testing purpose fill in:</p>
+		<br>
+		<p>Username 1: john_doe</p>
+		<p>Password 1: Qwertyuiop[1</p>
+		<br>
+		<p>Username 2: jane_smith</p>
+		<p>Password 2: Qwertyuiop[1</p>
 	</div>
+    </div>
+  </div>
+
+  <script>
+    function toggleLoginPassword() {
+      const pwdInput = document.getElementById('password');
+      pwdInput.type =
+        document.getElementById('showLoginPwd').checked
+          ? 'text'
+          : 'password';
+    }
+  </script>
 </body>
 </html>

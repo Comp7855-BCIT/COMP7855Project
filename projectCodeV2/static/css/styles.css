@@ -551,3 +551,11 @@ ul {
 .download-form {
     margin: 15px;
 }
+.note{
+	padding: 10px;
+
+}
+.note p{
+
+	text-align: left;
+}

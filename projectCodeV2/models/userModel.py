@@ -1,7 +1,7 @@
 # ----------------------------------------------
 # Title: userModel.py
 # Description: User profile model
-# Author(s): Marvin 
+# Author(s): Marvin
 # Date created: Feb 19, 2025
 # Date modified: Mar 8, 2025
 # ----------------------------------------------
@@ -10,32 +10,20 @@ import sqlite3
 class UserModel:
     @staticmethod
     def displayFullDatabase():
-        # Connect to the SQLite database
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
-
-        # Get a list of all tables in the database
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
         tables = cursor.fetchall()
 
-        # Loop through each table and display its content
         for table in tables:
             tableName = table[0]
             print(f"\nTable: {tableName}")
-        
-            # Get all rows from the table
             cursor.execute(f"SELECT * FROM {tableName};")
             rows = cursor.fetchall()
-        
-            # Get column names
-            columnNames = [description[0] for description in cursor.description]
+            columnNames = [desc[0] for desc in cursor.description]
             print("Columns:", columnNames)
-        
-            # Print all rows
             for row in rows:
                 print(row)
-
-        # Close the connection
         conn.close()
 
     @staticmethod
@@ -65,10 +53,7 @@ class UserModel:
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ''', (username, password, fullName, email, phone, linkedin, location, portfolio))
         conn.commit()
-
-        # Here we can get the last inserted ID:
         user_id = cursor.lastrowid
-
         conn.close()
         return user_id
 
@@ -89,7 +74,6 @@ class UserModel:
         count = cursor.fetchone()[0]
         conn.close()
         return (count > 0)
-
 
     @staticmethod
     def updateUser(userId, username, password, fullName, email, phone, linkedin, location, portfolio):
