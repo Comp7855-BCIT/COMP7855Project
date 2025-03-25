@@ -66,10 +66,11 @@
       <table id="job-table">
         <thead>
           <tr>
-            <th>Job Title</th>
-            <th>Company</th>
-            <th>Deadline</th>
-            <th>Status</th>
+            <!-- Added onclick handlers and arrow placeholders for each column -->
+            <th onclick="toggleSort(0)">Job Title <span id="arrow-0">&#9650;</span></th>
+            <th onclick="toggleSort(1)">Company <span id="arrow-1">&#9650;</span></th>
+            <th onclick="toggleSort(2)">Deadline <span id="arrow-2">&#9650;</span></th>
+            <th onclick="toggleSort(3)">Status <span id="arrow-3">&#9650;</span></th>
           </tr>
         </thead>
         <tbody>
@@ -137,8 +138,60 @@
                 })
                 .catch(error => console.error("Error fetching AI suggestions:", error));
         });
-        </script>
-      
+      </script>
+
+      <!-- Sorting Logic for Table Columns -->
+      <script>
+        // Initial sort directions for each column
+        var sortDirections = ["asc", "asc", "asc", "asc"];
+
+        function toggleSort(columnIndex) {
+          // Toggle the sort direction for the clicked column
+          sortDirections[columnIndex] = (sortDirections[columnIndex] === "asc") ? "desc" : "asc";
+
+          // Sort the table
+          sortTable(columnIndex, sortDirections[columnIndex]);
+
+          // Update arrow icons
+          for (var i = 0; i < sortDirections.length; i++) {
+            var arrow = document.getElementById("arrow-" + i);
+            if (i === columnIndex) {
+              arrow.innerHTML = (sortDirections[i] === "asc") ? "&#9650;" : "&#9660;";
+            } else {
+              // Reset other columns to default arrow & asc order
+              arrow.innerHTML = "&#9650;";
+              sortDirections[i] = "asc";
+            }
+          }
+        }
+
+        function sortTable(columnIndex, direction) {
+          var table = document.getElementById("job-table");
+          var tbody = table.tBodies[0];
+          var rows = Array.from(tbody.rows);
+
+          rows.sort(function(a, b) {
+            var cellA = a.cells[columnIndex].innerText.trim();
+            var cellB = b.cells[columnIndex].innerText.trim();
+
+            // If sorting by deadline (assume index 2 is the date column)
+            if (columnIndex === 2) {
+              var dateA = new Date(cellA);
+              var dateB = new Date(cellB);
+              return (direction === "asc") ? dateA - dateB : dateB - dateA;
+            } else {
+              // Sort alphabetically for Job Title, Company, Status
+              return (direction === "asc")
+                ? cellA.localeCompare(cellB)
+                : cellB.localeCompare(cellA);
+            }
+          });
+
+          // Re-insert sorted rows
+          rows.forEach(row => tbody.appendChild(row));
+        }
+      </script>
+
       <h2>Tips</h2>
       <details>
         <summary>🚀 Having a Hard Time Getting Started? No Worries!</summary>
