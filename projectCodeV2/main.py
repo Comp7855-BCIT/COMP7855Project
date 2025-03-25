@@ -24,7 +24,13 @@ app.secret_key = "your_secret_key"
 @app.route('/')
 def index():
     user_id = 1  # Replace with actual session user ID
-    jobs = JobModel.getJobs(user_id)
+    status_filter = request.args.get('status')
+
+    if status_filter:
+        jobs = JobModel.getJobsByStatus(user_id, status_filter)
+    else:
+        jobs = JobModel.getJobs(user_id)
+
     ai_suggestions = JobModel.getJobSuggestions(user_id)  # Fetch AI suggestions from DB
 
     return render_template('index.html', jobs=jobs, aiSuggestions=ai_suggestions, user_id=user_id)
