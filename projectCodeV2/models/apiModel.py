@@ -1,7 +1,7 @@
 # ----------------------------------------------
 # Title: apiModel.py
 # Description: Uses AI API to generate responses
-# Author(s): Yui & Feliex
+# Author(s): Yui 
 # Date created: Mar 4, 2025
 # Date modified: Mar 4, 2025
 # ----------------------------------------------
@@ -91,6 +91,4 @@ class apiModel:
         except Exception as e:
             print(f"Error communicating with Groq API: {e}")
             return None
-
-
 

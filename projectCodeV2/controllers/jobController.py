@@ -73,4 +73,3 @@ class JobController:
     def generateSuggestions(userId):
         # example for job suggestions, not implemented
         pass
-

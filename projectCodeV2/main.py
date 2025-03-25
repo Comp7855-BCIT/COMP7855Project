@@ -20,11 +20,21 @@ from models.jobModel import JobModel
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
 
-######### Main Page ######### 
+######### Main page ######### 
 @app.route('/')
 def index():
     user_id = 1  # Replace with actual session user ID
-    jobs = JobModel.getJobs(user_id)
+    if 'userId' not in session:
+        return redirect(url_for('login'))
+    user_id = session['userId']
+
+    status_filter = request.args.get('status')
+
+    if status_filter:
+        jobs = JobModel.getJobsByStatus(user_id, status_filter)
+    else:
+        jobs = JobModel.getJobs(user_id)
+
     ai_suggestions = JobModel.getJobSuggestions(user_id)  # Fetch AI suggestions from DB
 
     return render_template('index.html', jobs=jobs, aiSuggestions=ai_suggestions, user_id=user_id)
@@ -165,4 +175,4 @@ def coverLetter():
 if __name__ == '__main__':
     initDb()
     userId = 1
-    app.run(debug=True)
+    app.run(debug=True, port=8000)
