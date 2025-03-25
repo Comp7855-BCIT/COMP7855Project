@@ -188,12 +188,40 @@ def simulateUserData():
         cursor.execute('''
             INSERT INTO jobs (userId, jobTitle, location, industry, deadline, salaryRange, experienceLevel, rate, description, status, link, company)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (user1_id, job_titles_user1[i], locations_user1[i], industries_user1[i], '2025-06-30', salary_ranges_user1[i], 'Mid', 4, f'Description for {job_titles_user1[i]}', 'Open', f'https://example.com/job{i+1}', f'Company{i+1}'))
+        ''', (
+            user1_id,
+            job_titles_user1[i],
+            locations_user1[i],
+            industries_user1[i],
+            '2025-06-30',
+            salary_ranges_user1[i],
+            'Mid',
+            4,
+            f'Description for {job_titles_user1[i]}',
+            # Changed from 'Open' to '📝 Want to apply'
+            '📝 Want to apply',
+            f'https://example.com/job{i+1}',
+            f'Company{i+1}'
+        ))
 
         cursor.execute('''
             INSERT INTO jobs (userId, jobTitle, location, industry, deadline, salaryRange, experienceLevel, rate, description, status, link, company)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (user2_id, job_titles_user2[i], locations_user2[i], industries_user2[i], '2025-05-15', salary_ranges_user2[i], 'Junior', 3, f'Description for {job_titles_user2[i]}', 'Open', f'https://example.com/job{i+1}', f'Company{i+1}'))
+        ''', (
+            user2_id,
+            job_titles_user2[i],
+            locations_user2[i],
+            industries_user2[i],
+            '2025-05-15',
+            salary_ranges_user2[i],
+            'Junior',
+            3,
+            f'Description for {job_titles_user2[i]}',
+            # Changed from 'Open' to '⏳ Applied and waiting'
+            '⏳ Applied and waiting',
+            f'https://example.com/job{i+1}',
+            f'Company{i+1}'
+        ))
 
     # ---------------- SIMULATING WORK EXPERIENCE ----------------
     work_titles_user1 = ['Electrical Design Engineer', 'Power Systems Engineer', 'Project Manager']
@@ -212,12 +240,28 @@ def simulateUserData():
         cursor.execute('''
             INSERT INTO workExperience (userId, jobTitle, company, location, startDate, endDate, responsibilities)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', (user1_id, work_titles_user1[i], companies_user1[i], 'Vancouver, BC', start_dates_user1[i], end_dates_user1[i], responsibilities_user1[i]))
+        ''', (
+            user1_id,
+            work_titles_user1[i],
+            companies_user1[i],
+            'Vancouver, BC',
+            start_dates_user1[i],
+            end_dates_user1[i],
+            responsibilities_user1[i]
+        ))
 
         cursor.execute('''
             INSERT INTO workExperience (userId, jobTitle, company, location, startDate, endDate, responsibilities)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', (user2_id, work_titles_user2[i], companies_user2[i], 'Dallas, TX', start_dates_user2[i], end_dates_user2[i], responsibilities_user2[i]))
+        ''', (
+            user2_id,
+            work_titles_user2[i],
+            companies_user2[i],
+            'Dallas, TX',
+            start_dates_user2[i],
+            end_dates_user2[i],
+            responsibilities_user2[i]
+        ))
 
     # ---------------- SIMULATING EDUCATION ----------------
     degrees_user1 = ['B.Sc. in Electrical Engineering', 'M.Sc. in Power Systems Engineering', 'Ph.D. in Electrical Engineering']
@@ -232,12 +276,22 @@ def simulateUserData():
         cursor.execute('''
             INSERT INTO education (userId, degree, university, graduationYear)
             VALUES (?, ?, ?, ?)
-        ''', (user1_id, degrees_user1[i % len(degrees_user1)], universities_user1[i % len(universities_user1)], graduation_years_user1[i % len(graduation_years_user1)]))
+        ''', (
+            user1_id,
+            degrees_user1[i % len(degrees_user1)],
+            universities_user1[i % len(universities_user1)],
+            graduation_years_user1[i % len(graduation_years_user1)]
+        ))
 
         cursor.execute('''
             INSERT INTO education (userId, degree, university, graduationYear)
             VALUES (?, ?, ?, ?)
-        ''', (user2_id, degrees_user2[i], universities_user2[i], graduation_years_user2[i]))
+        ''', (
+            user2_id,
+            degrees_user2[i],
+            universities_user2[i],
+            graduation_years_user2[i]
+        ))
 
     # ---------------- SIMULATING PROJECTS ----------------
     project_names_user1 = ['Smart Grid Design', 'Solar Panel Installation', 'Wind Power Design', 'Energy Efficiency Optimization', 'Power System Analysis', 'Smart Home Automation', 'Electric Vehicle Infrastructure']
@@ -252,12 +306,24 @@ def simulateUserData():
         cursor.execute('''
             INSERT INTO projects (userId, projectName, description, technologies, impact)
             VALUES (?, ?, ?, ?, ?)
-        ''', (user1_id, project_names_user1[i], f'Description for {project_names_user1[i]}', technologies_used_user1[i], impacts_user1[i]))
+        ''', (
+            user1_id,
+            project_names_user1[i],
+            f'Description for {project_names_user1[i]}',
+            technologies_used_user1[i],
+            impacts_user1[i]
+        ))
 
         cursor.execute('''
             INSERT INTO projects (userId, projectName, description, technologies, impact)
             VALUES (?, ?, ?, ?, ?)
-        ''', (user2_id, project_names_user2[i], f'Description for {project_names_user2[i]}', technologies_used_user2[i], impacts_user2[i]))
+        ''', (
+            user2_id,
+            project_names_user2[i],
+            f'Description for {project_names_user2[i]}',
+            technologies_used_user2[i],
+            impacts_user2[i]
+        ))
 
     # ---------------- SIMULATING CERTIFICATIONS ----------------
     certifications_user1 = ['Certified Electrical Engineer', 'Certified Power Systems Engineer', 'Licensed Electrical Professional', 'Certified Renewable Energy Professional']
