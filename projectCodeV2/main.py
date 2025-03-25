@@ -24,6 +24,10 @@ app.secret_key = "your_secret_key"
 @app.route('/')
 def index():
     user_id = 1  # Replace with actual session user ID
+    if 'userId' not in session:
+        return redirect(url_for('login'))
+    user_id = session['userId']
+
     status_filter = request.args.get('status')
 
     if status_filter:
