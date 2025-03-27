@@ -403,6 +403,6 @@ def simulateUserData():
     conn.close()
 
 
-# if __name__ == '__main__':
-#         initDb()
-#         simulateUserData()
+if __name__ == '__main__':
+        initDb()
+        simulateUserData()

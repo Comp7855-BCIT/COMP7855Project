@@ -5,153 +5,178 @@
 # Date created: Mar 4, 2025
 # Date modified: Mar 4, 2025
 # ----------------------------------------------
-import os
+# --------------------------------------------------
+# File: apiModel.py
+# Description: Combine JobSpy + Groq to provide job suggestions
+#              with a matchScore based on user experience.
+# --------------------------------------------------
+
 import sys
 import json
-import pandas as pd  # Ensure pandas is imported
+import pandas as pd
+import textwrap
+
 from groq import Groq
 from jobspy import scrape_jobs
-from models.jobModel import JobModel  # Import JobModel to fetch jobs
 
-# class apiModel:
-#     api_key = "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"  
+from models.jobModel import JobModel
+from models.experienceModel import ExperienceModel
 
-#     @staticmethod
-#     def generateJobSuggestions(userId):
-#         if not apiModel.api_key:
-#             print("Can't find the key.")
-#             sys.exit(1)
-
-#         client = Groq(api_key=apiModel.api_key)
-
-#         # Fetch user's job data from database
-#         jobs = JobModel.getJobs(userId)
-        
-#         if not jobs:
-#             print("No jobs found in the database.")
-#             return None
-
-#         # Format job data for API
-#         job_list = [
-#             {"title": job[2], "industry": job[4], "description": job[9]}  # Ensure correct column indices
-#             for job in jobs
-#         ]
-#         job_data = json.dumps(job_list)
-
-#         # Create prompt for the AI
-#         prompt = f"""
-#         You are an AI job recommendation assistant. Given the following jobs the user is interested in:
-#         {job_data}
-
-#         Suggest exactly 3 new jobs in JSON format. Each job must have:
-#         - "jobTitle"
-#         - "company"
-#         - "link" (a fictional URL)
-#         - "matchScore" (a percentage from 0-100)
-
-#         Respond with **only** valid JSON, no explanations.
-
-#         Example:
-#         [
-#             {{"jobTitle": "Software Engineer", "company": "TechCorp", "link": "http://techcorp.com", "matchScore": 95}},
-#             {{"jobTitle": "Data Scientist", "company": "DataWorks", "link": "http://dataworks.com", "matchScore": 90}},
-#             {{"jobTitle": "AI Researcher", "company": "OpenAI", "link": "http://openai.com", "matchScore": 88}}
-#         ]
-#         """
-
-#         print("\nSending request to Groq API...\n")
-        
-#         try:
-#             chat_completion = client.chat.completions.create(
-#                 messages=[{"role": "user", "content": prompt}],
-#                 model="llama3-70b-8192",
-#             )
-
-#             # Ensure a valid response is received
-#             if not chat_completion or not chat_completion.choices:
-#                 print("Error: API returned an empty response.")
-#                 return None
-
-#             response_text = chat_completion.choices[0].message.content.strip()
-            
-#             # Debugging output
-#             print("\nReceived API Response:\n", response_text)
-
-#             # Ensure JSON format
-#             if not response_text.startswith("[") or not response_text.endswith("]"):
-#                 print("Error: API response does not start and end with JSON array brackets.")
-#                 return None
-
-#             job_suggestions = json.loads(response_text)  # Parse JSON
-
-#             # Save AI-generated suggestions to the database
-#             JobModel.saveJobSuggestions(userId, job_suggestions)
-
-#             # Return saved suggestions
-#             return JobModel.getJobSuggestions(userId)
-
-#         except Exception as e:
-#             print(f"Error communicating with Groq API: {e}")
-#             return None
 
 class apiModel:
+    # Replace with your actual Groq API key
+    api_key = "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"
+
     @staticmethod
     def generateJobSuggestions(userId):
-        print("Fetching jobs from JobSpy...")
+        """
+        1) Gather the user's experiences from the DB, truncating if needed.
+        2) Use JobSpy to scrape new jobs from Indeed.
+        3) Build a prompt that includes experiences + job data.
+        4) Send prompt to Groq, parse the AI's JSON output.
+        5) Save the suggestions into 'jobSuggestions' table.
+        6) Return the newly saved suggestions.
 
-        # Fetch user's saved jobs from the database
-        jobs = JobModel.getJobs(userId)
-        if not jobs:
-            print("No jobs found in database.")
+        If you see 'invalid_api_key' or 401 errors, ensure api_key is correct.
+        If you see token-limit (413) errors, reduce the data in the prompt.
+        """
+
+        # 0) Validate the Groq API key
+        if not apiModel.api_key:
+            print("No Groq API key provided. Exiting.")
             return None
 
-        # Extract unique job titles from saved jobs
-        job_titles = list(set(job[2] for job in jobs if job[2]))  # Ensure job title exists
+        # 1) Gather user’s experiences, truncated to keep the prompt smaller
+        user_experience_text = apiModel._getUserExperienceText(userId)
+        if not user_experience_text.strip():
+            user_experience_text = "(No experiences)"
 
-        if not job_titles:
-            print("No valid job titles found.")
-            return None
-
-        # Fetch jobs using JobSpy
+        # 2) Scrape Indeed for new jobs using python-jobspy
+        #    We only fetch a few results to avoid huge prompts.
         try:
-            print(f"Searching for jobs with titles: {job_titles}")  # Debugging print
-
-            job_results = scrape_jobs(
+            job_df = scrape_jobs(
                 site_name="indeed",
-                search_term=" OR ".join(job_titles),  # Use first 3 job titles
-                location="Vancouver, BC",  # Modify to be dynamic if needed
-                results_wanted=3,
+                search_term="Electrical Engineer OR Project Manager",  # or build from user's data
+                location="Vancouver, BC",  # or from user’s profile
+                results_wanted=5,         # a few results
                 hours_old=72,
                 country_indeed='Canada'
             )
-
-            print("\nRaw job results from JobSpy:\n", job_results)  # Debugging output
-
-            # Ensure job_results is a valid DataFrame
-            if not isinstance(job_results, pd.DataFrame) or job_results.empty:
-                print("No jobs found from JobSpy.")
-                return None
-
-            # Convert job results to JSON-like format
-            job_suggestions = []
-            for _, row in job_results.iterrows():
-                job_suggestions.append({
-                    "jobTitle": row.get("job_title", "Unknown"),
-                    "company": row.get("company", "Unknown"),
-                    "link": row.get("job_link", "#"),
-                    "matchScore": 75  # Placeholder match score
-                })
-
-            # Debugging: Print extracted job suggestions
-            print("\nProcessed Job Suggestions:\n", job_suggestions)
-
-            # Save suggestions to the database
-            JobModel.saveJobSuggestions(userId, job_suggestions)
-
-            # Return saved job suggestions
-            return JobModel.getJobSuggestions(userId)
-
         except Exception as e:
-            print(f"Error fetching jobs from JobSpy: {e}")
+            print("Error scraping Indeed via JobSpy:", e)
             return None
 
+        # If no jobs returned, bail out
+        if not isinstance(job_df, pd.DataFrame) or job_df.empty:
+            print("No jobs found from JobSpy.")
+            return None
+
+        # Debug: Print the raw DataFrame in your console
+        print("\nRaw job results from JobSpy:\n", job_df)
+        print("Columns returned by JobSpy:", job_df.columns)
+
+        # Shuffle or limit how many to pass to Groq to reduce token usage
+        job_df = job_df.sample(frac=1).head(3).reset_index(drop=True)
+
+        # Convert these jobs to a small JSON-like list
+        job_list_for_ai = []
+        for _, row in job_df.iterrows():
+            job_list_for_ai.append({
+                "title": row.get("title", "Unknown"),
+                "company": row.get("company", "Unknown"),
+                "link": row.get("job_url", "#"),
+                # omit big fields to avoid token blowout
+                "description": "(omitted to save tokens)"
+            })
+
+        # 3) Build your prompt
+        #    We'll ask for EXACTLY 3 suggestions in a JSON array.
+        job_data_str = json.dumps(job_list_for_ai, indent=2)
+        prompt = textwrap.dedent(f"""
+        You are an AI job recommendation assistant.
+
+        The user has these experiences:
+        {user_experience_text}
+
+        Here are some new job postings from Indeed:
+        {job_data_str}
+
+        Please suggest EXACTLY 3 jobs with the keys: 
+          "jobTitle", "company", "link", "matchScore" (0-100).
+
+        Even if fewer than 3 are strongly relevant, fill the extra slots with partial matches.
+        Respond with ONLY valid JSON, no extra text. Example:
+
+        [
+          {{
+            "jobTitle": "Software Engineer",
+            "company": "TechCorp",
+            "link": "https://example.com",
+            "matchScore": 70
+          }},
+          ...
+        ]
+        """)
+
+        # 4) Call Groq with the prompt
+        try:
+            client = Groq(api_key=apiModel.api_key)
+            chat_completion = client.chat.completions.create(
+                messages=[{"role": "user", "content": prompt}],
+                model="llama3-70b-8192",  # replace with your available model
+            )
+        except Exception as e:
+            print(f"Error calling Groq: {e}")
+            return None
+
+        if not chat_completion or not chat_completion.choices:
+            print("No response from Groq.")
+            return None
+
+        response_text = chat_completion.choices[0].message.content.strip()
+        print("\nAI Response:\n", response_text)
+
+        # 5) Extract bracketed JSON from the AI response
+        start_idx = response_text.find("[")
+        end_idx = response_text.rfind("]")
+        if start_idx == -1 or end_idx == -1 or end_idx < start_idx:
+            print("Error: Could not find bracketed JSON in AI response.")
+            return None
+
+        json_substring = response_text[start_idx:end_idx + 1]
+        try:
+            job_suggestions = json.loads(json_substring)
+        except Exception as e:
+            print(f"Error parsing JSON substring: {e}")
+            return None
+
+        # The AI should produce a list of dicts with "jobTitle", "company", "link", "matchScore"
+        if not isinstance(job_suggestions, list):
+            print("AI did not return a list of suggestions.")
+            return None
+
+        # 6) Save to DB:  jobSuggestions table
+        # (jobTitle, company, link, matchScore)
+        JobModel.saveJobSuggestions(userId, job_suggestions)
+
+        # 7) Return the newly saved rows from DB
+        return JobModel.getJobSuggestions(userId)
+
+    @staticmethod
+    def _getUserExperienceText(userId):
+        """
+        Gather user experiences from your experienceModel. 
+        Return a truncated string so you don’t exceed token limits if huge.
+        """
+        exp_model = ExperienceModel()
+        exp_data = exp_model.get_experiences(userId)  # e.g. {"Work": [...], "Volunteer": [...], ...}
+
+        lines = []
+        for category, items in exp_data.items():
+            if items:
+                lines.append(f"{category}: {', '.join(items)}")
+
+        # Combine into a single text block
+        combined = "\n".join(lines)
+        # Truncate to avoid 413 token limit errors if needed
+        return combined[:800]  # up to 800 characters
