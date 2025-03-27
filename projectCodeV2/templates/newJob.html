@@ -161,26 +161,25 @@
 					</div>
 					<button class="document-button">Preview as a pdf</button>
 					<div class="download-form">
-						<form method="POST" action="" >
-							<!-- Job Title and Status Fields beside each other -->
-							
-							<div class="form-row-3">
-								
-								<div>
-									<label for="download-as"></label>
-									<select id="download-as" name="download-as" required>
-										<option value="1" >pdf document</option>
-										<option value="2" >word document</option>
-										<option value="3" >pdf and word documents</option>
-									</select>
-								</div>
+						<form method="POST" action="/download">
+						  <!-- Hidden inputs to carry editor content -->
+						  <input type="hidden" name="resumeContent" id="resumeContent">
+						  <input type="hidden" name="coverLetterContent" id="coverLetterContent">
+					  
+						  <div class="form-row-3">
+							<div>
+							  <label for="download-as">Choose format:</label>
+							  <select id="download-as" name="download-as" required>
+								<option value="1">pdf document</option>
+								<option value="2">word document</option>
+								<option value="3">pdf and word documents</option>
+							  </select>
 							</div>
-							
-							<!-- Submit Button -->
-							<button type="submit">Download</button>
-							
+						  </div>
+					  
+						  <button type="submit">Download</button>
 						</form>
-					</div>
+					  </div>
 					
 				</main>
 			</div>
