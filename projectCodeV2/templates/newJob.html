@@ -220,6 +220,17 @@
 					document.querySelectorAll('.tab-btn').forEach(button => button.classList.remove('active'));
 					document.querySelector(`button[onclick="switchTab('${tabName}')"]`).classList.add('active');
 				}
+
+				document.querySelector('.download-form form').addEventListener('submit', function(e) {
+    				// Get Quill editor content
+    				const resumeHtml = document.querySelector('#resume-editor .ql-editor').innerHTML;
+    				const coverLetterHtml = document.querySelector('#cover-letter-editor .ql-editor').innerHTML;
+
+    				// Set hidden form values
+    				document.getElementById('resumeContent').value = resumeHtml;
+    				document.getElementById('coverLetterContent').value = coverLetterHtml;
+				});
+
 			</script>
 		</div>
 	</body>
