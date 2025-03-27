@@ -14,9 +14,6 @@ from models.jobModel import JobModel
 from models.apiModel import apiModel
 from initDb import initDb
 
-# Add this line so Python knows what JobModel is
-from models.jobModel import JobModel
-
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
 
