@@ -175,6 +175,49 @@ def coverLetter():
     print("Cover letter page")
     return render_template('coverLetter.html')
 
+@app.route('/download', methods=['POST'])
+def download():
+    format_type = request.form.get('download-as')
+    resume_html = request.form.get('resumeContent')
+    cover_html = request.form.get('coverLetterContent')
+
+    # Combine both sections into one HTML
+    html_content = f"""
+    <html>
+    <head>
+        <style>
+            body {{ font-family: Arial, sans-serif; padding: 20px; }}
+            h1 {{ color: #333; }}
+            hr {{ margin: 30px 0; }}
+        </style>
+    </head>
+    <body>
+        <h1>Resume</h1>
+        {resume_html}
+        <hr>
+        <h1>Cover Letter</h1>
+        {cover_html}
+    </body>
+    </html>
+    """
+
+    if format_type in ['1', '3']:  # PDF or both
+        pdf_path = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf').name
+        HTML(string=html_content).write_pdf(pdf_path)
+        return send_file(pdf_path, as_attachment=True, download_name="documents.pdf")
+
+    if format_type in ['2']:  # Word only
+        doc = Document()
+        doc.add_heading('Resume', 0)
+        doc.add_paragraph(resume_html)
+        doc.add_heading('Cover Letter', 0)
+        doc.add_paragraph(cover_html)
+        word_path = tempfile.NamedTemporaryFile(delete=False, suffix='.docx').name
+        doc.save(word_path)
+        return send_file(word_path, as_attachment=True, download_name="documents.docx")
+
+    return "Invalid format", 400
+
 if __name__ == '__main__':
     initDb()
     userId = 1
