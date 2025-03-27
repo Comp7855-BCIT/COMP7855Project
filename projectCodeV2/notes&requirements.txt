@@ -16,6 +16,12 @@ pip install python-docx
 pip install bleach
 pip install beautifulsoup4
 pip install groq
+pip install WeasyPrint
+pip install cairocffi
+
+
+Download gtk3-Runtime
+https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer/releases
 
 
 Good luck!
