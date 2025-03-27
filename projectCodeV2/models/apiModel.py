@@ -51,15 +51,28 @@ class apiModel:
         if not user_experience_text.strip():
             user_experience_text = "(No experiences)"
 
-        # 2) Scrape Indeed for new jobs using python-jobspy
-        #    We only fetch a few results to avoid huge prompts.
+        # Fetch users saved jobs from the database
+        jobs = JobModel.getJobs(userId)
+        if not jobs:
+            print("No jobs found in database.")
+            return None
+
+        job_titles = list(set(job[2] for job in jobs if job[2]))
+
+        if not job_titles:
+            print("No valid job titles found.")
+            return None
+
+        # Fetch jobs using jobspy
         try:
+            print(f"Searching for jobs with titles: {job_titles}")
+
             job_df = scrape_jobs(
                 site_name="indeed",
-                search_term="Electrical Engineer OR Project Manager",  # or build from user's data
+                search_term=" OR ".join(job_titles),
                 location="Vancouver, BC",  # or from user’s profile
                 results_wanted=5,         # a few results
-                hours_old=72,
+                hours_old=336,
                 country_indeed='Canada'
             )
         except Exception as e:
