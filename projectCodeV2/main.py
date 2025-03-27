@@ -13,9 +13,15 @@ from controllers.experienceController import ExperienceController
 from models.jobModel import JobModel
 from models.apiModel import apiModel
 from initDb import initDb
+from flask import request, send_file
+from weasyprint import HTML
+from docx import Document
+import tempfile
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
+
+
 
 ######### Main page ######### 
 @app.route('/')
