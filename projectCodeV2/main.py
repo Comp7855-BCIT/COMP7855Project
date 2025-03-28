@@ -12,7 +12,7 @@ from controllers.jobController import JobController
 from controllers.experienceController import ExperienceController
 from models.jobModel import JobModel
 from models.apiModel import apiModel
-from initDb import initDb
+from initDb import initDb, simulateUserData
 from flask import request, send_file
 from weasyprint import HTML
 from docx import Document

@@ -20,6 +20,7 @@ from groq import Groq
 from jobspy import scrape_jobs
 
 from models.jobModel import JobModel
+from models.userModel import UserModel
 from models.experienceModel import ExperienceModel
 
 
@@ -51,8 +52,10 @@ class apiModel:
         if not user_experience_text.strip():
             user_experience_text = "(No experiences)"
 
-        # Fetch users saved jobs from the database
+        # Fetch user's saved jobs & location from the database
         jobs = JobModel.getJobs(userId)
+        user_location = UserModel.getUserLocation(userId)
+
         if not jobs:
             print("No jobs found in database.")
             return None
@@ -63,17 +66,22 @@ class apiModel:
             print("No valid job titles found.")
             return None
 
-        # Fetch jobs using jobspy
+        # Ensure location is valid; fallback to a default location
+        if not user_location:
+            print("No location found for user. Defaulting to 'Vancouver, BC'.")
+            user_location = "Vancouver, BC"  # You can change this default if needed
+
+        # Fetch jobs using JobSpy
         try:
-            print(f"Searching for jobs with titles: {job_titles}")
+            print(f"Searching for jobs with titles: {job_titles} in {user_location}")
 
             job_df = scrape_jobs(
                 site_name="indeed",
                 search_term=" OR ".join(job_titles),
-                location="Vancouver, BC",  # or from user’s profile
-                results_wanted=5,         # a few results
+                location=user_location,  
+                results_wanted=5,
                 hours_old=336,
-                country_indeed='Canada'
+                country_indeed='Canada' # Right now we have it to only pull jobs from Canada, can try to add a country paramter to adduser to pull this from the database?
             )
         except Exception as e:
             print("Error scraping Indeed via JobSpy:", e)

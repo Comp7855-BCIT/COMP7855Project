@@ -67,14 +67,13 @@ class UserModel:
         return user
     
     @staticmethod
-    def getUserLocation(location):
-        conn = sqlite3.connect('database.db')
+    def getUserLocation(userId):
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM users WHERE username = ?', (location,))
+        cursor.execute('SELECT location FROM users WHERE id = ?', (userId,))
         location = cursor.fetchone()
         conn.close()
-        return location
+        return location[0] if location else None  # Return the location if found
 
     @staticmethod
     def usernameExists(username):
