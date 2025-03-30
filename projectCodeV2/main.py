@@ -14,7 +14,7 @@ from models.jobModel import JobModel
 from models.apiModel import apiModel
 from initDb import initDb, simulateUserData
 from flask import request, send_file
-from weasyprint import HTML
+#from weasyprint import HTML
 from docx import Document
 import tempfile
 
@@ -48,7 +48,7 @@ def generate_suggestions(userId):
     new_suggestions = apiModel.generateJobSuggestions(userId)
     
     if new_suggestions is None:
-        return jsonify({"error": "Failed to fetch AI job suggestions"}), 500
+        return jsonify({"error": "No jobs found."}), 500
 
     return jsonify(new_suggestions)
 
