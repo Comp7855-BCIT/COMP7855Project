@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='media/logoSmall.png') }}" />
+    <title>{{ 'Edit Work' if work else 'New Work' }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="#wrapper">
+      <header>
+        <div class="logo">
+          <img src="{{ url_for('static', filename='media/logo.png') }}" alt="Logo" class="logo" />
+          <p class="slogan">Making job applications easy &#128640;</p>
+        </div>
+        <nav>
+          <button onclick="location.href='/'">Back to Main</button>
+          <button onclick="location.href='newExperience'">Back to New Experience</button>
+        </nav>
+      </header>
+      <div id="content">
+        <main>
+          <h1>{{ 'Edit Work' if work else 'New Work' }}</h1>
+          <!-- Delete button removed from the top-right -->
+          <form method="POST" action="{{ url_for('editWorkByTitle', title=work[2]) if work else '/newWork' }}">
+            <label for="work-title">Work Title:</label>
+            <input type="text" id="work-title" name="work-title" value="{{ work[2] if work else '' }}" required />
+
+            <label for="work-company">Company:</label>
+            <input type="text" id="work-company" name="work-company" value="{{ work[3] if work else '' }}" required />
+
+            <label for="start-date">Start date:</label>
+            <input type="date" id="start-date" name="start-date" value="{{ work[4] if work else '' }}" required />
+
+            <label for="end-date">End date:</label>
+            <input type="date" id="end-date" name="end-date" value="{{ work[5] if work else '' }}" required />
+
+            <label for="work-location">Location (optional):</label>
+            <input type="text" id="work-location" name="work-location" value="{{ work[6] if work else '' }}" />
+
+            <label for="work-responsibilities">Responsibilities:</label>
+            <textarea id="work-responsibilities" name="work-responsibilities" required>{{ work[7] if work else '' }}</textarea>
+
+            <button type="submit">Save</button>
+            {% if work %}
+            <!-- Delete button added next to the Save button only in edit mode -->
+            <button type="button" onclick="confirmDelete('{{ work[2] }}')">Delete</button>
+            {% endif %}
+          </form>
+        </main>
+      </div>
+      <footer id="footer"></footer>
+
+      <script>
+        function confirmDelete(workTitle) {
+          if (confirm(`Are you sure you want to delete the work entry: ${workTitle}?`)) {
+            fetch(`/deleteExperience`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ category: 'Work', title: workTitle })
+            })
+              .then(response => response.json())
+              .then(data => {
+                if (data.success) {
+                  alert('Work deleted successfully.');
+                  window.location.href = '/newExperience';
+                } else {
+                  alert('Failed to delete work.');
+                }
+              })
+              .catch(error => {
+                console.error('Error deleting work:', error);
+                alert('An error occurred while deleting work.');
+              });
+          }
+        }
+      </script>
+    </div>
+  </body>
+</html>
