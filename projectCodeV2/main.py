@@ -14,7 +14,7 @@ from models.jobModel import JobModel
 from models.apiModel import apiModel
 from initDb import initDb, simulateUserData
 from flask import request, send_file
-#from weasyprint import HTML
+from weasyprint import HTML
 from docx import Document
 import tempfile
 
@@ -163,6 +163,31 @@ def newEducation():
     if request.method == 'POST':
         return ExperienceController.addEducation()
     return render_template('newEducation.html')
+
+@app.route('/newWorkTitle/<title>', methods=['GET', 'POST'])
+def editWorkByTitle(title):
+    return ExperienceController.editWorkByTitle(title)
+
+@app.route('/newVolunteerTitle/<title>', methods=['GET', 'POST'])
+def editVolunteerByTitle(title):
+    return ExperienceController.editVolunteerByTitle(title)
+
+@app.route('/newProjectTitle/<title>', methods=['GET', 'POST'])
+def editProjectByTitle(title):
+    return ExperienceController.editProjectByTitle(title)
+
+@app.route('/newAwardTitle/<title>', methods=['GET', 'POST'])
+def editAwardByTitle(title):
+    return ExperienceController.editAwardByTitle(title)
+
+@app.route('/newCertificationTitle/<title>', methods=['GET', 'POST'])
+def editCertificationByTitle(title):
+    return ExperienceController.editCertificationByTitle(title)
+
+@app.route('/newEducationTitle/<title>', methods=['GET', 'POST'])
+def editEducationByTitle(title):
+    return ExperienceController.editEducationByTitle(title)
+
 
 ######### Documents page ######### 
 @app.route('/resume', methods=['GET', 'POST'])
