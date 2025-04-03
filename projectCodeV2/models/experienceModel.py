@@ -117,3 +117,123 @@ class ExperienceModel:
             conn.commit()
 
         conn.close()
+
+    def get_work_by_title(self, user_id, title):
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM workExperience WHERE userId = ? AND jobTitle = ?', (user_id, title))
+        data = cursor.fetchone()
+        conn.close()
+        return data
+
+    def update_work_experience_by_title(self, user_id, title, company, start, end, location, responsibilities):
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute('''
+            UPDATE workExperience
+            SET company = ?, startDate = ?, endDate = ?, location = ?, responsibilities = ?
+            WHERE userId = ? AND jobTitle = ?
+        ''', (company, start, end, location, responsibilities, user_id, title))
+        conn.commit()
+        conn.close()
+
+    def get_volunteer_by_title(self, user_id, title):
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM volunteerExperience WHERE userId = ? AND role = ?", (user_id, title))
+        data = cursor.fetchone()
+        conn.close()
+        return data
+
+    def update_volunteer_experience_by_title(self, user_id, old_title, new_title, organization, description):
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute('''
+            UPDATE volunteerExperience
+            SET role = ?, organization = ?, description = ?
+            WHERE userId = ? AND role = ?
+        ''', (new_title, organization, description, user_id, old_title))
+        conn.commit()
+        conn.close()
+
+    def get_project_by_title(self, user_id, title):
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM projects WHERE userId = ? AND projectName = ?", (user_id, title))
+        data = cursor.fetchone()
+        conn.close()
+        return data
+
+    def update_project_by_title(self, user_id, old_title, new_title, description):
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute('''
+            UPDATE projects
+            SET projectName = ?, description = ?
+            WHERE userId = ? AND projectName = ?
+        ''', (new_title, description, user_id, old_title))
+        conn.commit()
+        conn.close()
+
+    def get_award_by_title(self, user_id, title):
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM awards WHERE userId = ? AND awardName = ?", (user_id, title))
+        data = cursor.fetchone()
+        conn.close()
+        return data
+
+    def update_award_by_title(self, user_id, old_title, new_title, issuer, year):
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute('''
+            UPDATE awards
+            SET awardName = ?, issuer = ?, year = ?
+            WHERE userId = ? AND awardName = ?
+        ''', (new_title, issuer, year, user_id, old_title))
+        conn.commit()
+        conn.close()
+
+    def get_certification_by_title(self, user_id, title):
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM certifications WHERE userId = ? AND certificateName = ?", (user_id, title))
+        data = cursor.fetchone()
+        conn.close()
+        return data
+
+    def update_certification_by_title(self, user_id, old_title, new_title, issuer, year):
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute('''
+            UPDATE certifications
+            SET certificateName = ?, issuer = ?, year = ?
+            WHERE userId = ? AND certificateName = ?
+        ''', (new_title, issuer, year, user_id, old_title))
+        conn.commit()
+        conn.close()
+
+
+    def get_education_by_title(self, user_id, title):
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM education WHERE userId = ? AND degree = ?", (user_id, title))
+        data = cursor.fetchone()
+        conn.close()
+        return data
+
+    def update_education_by_title(self, user_id, old_title, new_title, university, year):
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute('''
+            UPDATE education
+            SET degree = ?, university = ?, graduationYear = ?
+            WHERE userId = ? AND degree = ?
+        ''', (new_title, university, year, user_id, old_title))
+        conn.commit()
+        conn.close()
+
+
+
+
+
