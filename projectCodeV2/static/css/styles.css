@@ -559,3 +559,12 @@ ul {
 
 	text-align: left;
 }
+
+.experience-entry {
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    background-color: #fff;
+    border-radius: 8px;
+    display: inline-block;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
