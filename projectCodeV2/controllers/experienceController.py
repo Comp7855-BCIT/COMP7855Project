@@ -60,3 +60,124 @@ class ExperienceController:
         experience_model.delete_experience(user_id, category, title)
 
         return jsonify({'success': True})
+    
+    @staticmethod
+    def editWorkByTitle(title):
+        if 'userId' not in session:
+            return redirect(url_for('login'))
+
+        user_id = session['userId']
+        experience_model = ExperienceModel()
+
+        if request.method == 'POST':
+            title = request.form['work-title']
+            company = request.form['work-company']
+            start_date = request.form['start-date']
+            end_date = request.form['end-date']
+            location = request.form['work-location']
+            responsibilities = request.form['work-responsibilities']
+
+            experience_model.update_work_experience_by_title(user_id, title, company, start_date, end_date, location, responsibilities)
+            return redirect(url_for('newExperience'))
+
+        work_data = experience_model.get_work_by_title(user_id, title)
+        return render_template('newWork.html', work=work_data)
+
+    @staticmethod
+    def editVolunteerByTitle(title):
+        if 'userId' not in session:
+            return redirect(url_for('login'))
+        user_id = session['userId']
+        experience_model = ExperienceModel()
+
+        if request.method == 'POST':
+            # Get updated data from the form
+            new_title = request.form.get('volunteer-title')  # volunteer role/title
+            organization = request.form.get('volunteer-organization')
+            description = request.form.get('volunteer-description')
+
+            # Update the volunteer experience in the database
+            experience_model.update_volunteer_experience_by_title(user_id, title, new_title, organization, description)
+            return redirect(url_for('newExperience'))
+
+        # GET: Retrieve the existing volunteer record by title
+        volunteer_data = experience_model.get_volunteer_by_title(user_id, title)
+        return render_template('newVolunteer.html', volunteer=volunteer_data)
+
+    @staticmethod
+    def editProjectByTitle(title):
+        if 'userId' not in session:
+            return redirect(url_for('login'))
+
+        user_id = session['userId']
+        experience_model = ExperienceModel()
+
+        if request.method == 'POST':
+            new_title = request.form.get('project-title')
+            description = request.form.get('project-description')
+
+            experience_model.update_project_by_title(user_id, title, new_title, description)
+            return redirect(url_for('newExperience'))
+
+        project_data = experience_model.get_project_by_title(user_id, title)
+        return render_template('newProject.html', project=project_data)
+    
+    @staticmethod
+    def editAwardByTitle(title):
+        if 'userId' not in session:
+            return redirect(url_for('login'))
+
+        user_id = session['userId']
+        experience_model = ExperienceModel()
+
+        if request.method == 'POST':
+            new_title = request.form.get('award-title')
+            issuer = request.form.get('award-issuer')
+            year = request.form.get('award-year')
+
+            experience_model.update_award_by_title(user_id, title, new_title, issuer, year)
+            return redirect(url_for('newExperience'))
+
+        award_data = experience_model.get_award_by_title(user_id, title)
+        return render_template('newAward.html', award=award_data)
+    
+    @staticmethod
+    def editCertificationByTitle(title):
+        if 'userId' not in session:
+            return redirect(url_for('login'))
+
+        user_id = session['userId']
+        experience_model = ExperienceModel()
+
+        if request.method == 'POST':
+            new_title = request.form.get('certificate-title')
+            issuer = request.form.get('certificate-issuer')
+            year = request.form.get('certificate-year')
+
+            experience_model.update_certification_by_title(user_id, title, new_title, issuer, year)
+            return redirect(url_for('newExperience'))
+
+        cert_data = experience_model.get_certification_by_title(user_id, title)
+        return render_template('newCertification.html', certification=cert_data)
+
+    @staticmethod
+    def editEducationByTitle(title):
+        if 'userId' not in session:
+            return redirect(url_for('login'))
+
+        user_id = session['userId']
+        experience_model = ExperienceModel()
+
+        if request.method == 'POST':
+            new_title = request.form.get('education-degree')
+            university = request.form.get('education-university')
+            year = request.form.get('education-year')
+
+            experience_model.update_education_by_title(user_id, title, new_title, university, year)
+            return redirect(url_for('newExperience'))
+
+        education_data = experience_model.get_education_by_title(user_id, title)
+        return render_template('newEducation.html', education=education_data)
+
+
+
