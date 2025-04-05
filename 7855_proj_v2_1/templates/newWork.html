@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="shortcut icon"
+      type="image/x-icon"
+      href="{{ url_for('static', filename='media/logoSmall.png') }}"
+    />
+    <title>New Work</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="#wrapper">
+      <header>
+        <div class="logo">
+          <img src="{{ url_for('static', filename='media/logo.png') }}" alt="Logo" class="logo" />
+          <p class="slogan">Making job applications easy &#128640;</p>
+        </div>
+        <nav>
+          <button onclick="location.href='/'">Back to Main</button>
+          <button onclick="location.href='newExperience'">Back to New Experience</button>
+        </nav>
+      </header>
+      <div id="content">
+        <main>
+          <h1>New Work</h1>
+          <div class="top-right-buttons">
+            <button class="sign-out">Delete</button>
+          </div>
+          <form method="POST" action="/newWork">
+            <label for="work-title">Work Title:</label>
+            <input type="text" id="work-title" name="work-title" required />
+            
+            <label for="work-company">Company:</label>
+            <input type="text" id="work-company" name="work-company" required />
+            
+            <label for="start-date">Start date:</label>
+            <input type="date" id="start-date" name="start-date" required />
+            
+            <label for="end-date">End date:</label>
+            <input type="date" id="end-date" name="end-date" required />
+            
+            <label for="work-location">Location (optional):</label>
+            <input type="text" id="work-location" name="work-location" />
+            
+            <label for="work-responsibilities">Responsibilities:</label>
+            <textarea id="work-responsibilities" name="work-responsibilities" required></textarea>
+            
+            <button type="submit">Save</button>
+          </form>
+        </main>
+      </div>
+      <footer id="footer"></footer>
+    </div>
+  </body>
+</html>
