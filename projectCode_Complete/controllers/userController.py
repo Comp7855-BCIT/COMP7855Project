@@ -29,14 +29,14 @@ class UserController:
                 # We want to hash the new password if the user changed it
                 hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
                 UserModel.updateUser(
-                    userId, userName, hashed_pw, fullName, email, phone,
+                    userId, userName, hashed_pw, password, fullName, email, phone,
                     linkedin, location, portfolio
                 )
             else:
                 # Creating a user from userProfile? (Probably not used but let's be consistent)
                 hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
                 UserModel.addUser(
-                    userName, hashed_pw, fullName, email, phone,
+                    userName, hashed_pw, password, fullName, email, phone,
                     linkedin, location, portfolio
                 )
         
@@ -81,7 +81,7 @@ class UserController:
 
         # 4) Create user in the database
         new_user_id = UserModel.addUser(
-            username, hashed_pw, full_name, email, phone, '', '', ''
+            username, hashed_pw, password, full_name, email, phone, '', '', ''
         )
         session['userId'] = new_user_id
 
@@ -142,55 +142,72 @@ class UserController:
     def updateProfile():
         """
         Called from the /profile POST if the user is editing profile info.
+        Allows updating both hashed & plain password with same complexity rules as signUp.
         """
         if 'userId' not in session:
             return redirect(url_for('login'))
         
         userId = session['userId']
+        user = UserModel.getUserById(userId)
         
         if request.method == 'POST':
             fullName = request.form['full-name']
             username = request.form['user-name']
-            password = request.form['password']
             phone = request.form['phone']
             email = request.form['email']
             location = request.form['location']
             linkedin = request.form.get('linkedin', '')
             portfolio = request.form.get('portfolio', '')
 
-            # Hash the new password on profile update
-            hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+            # The new password typed by user in the form
+            new_password = request.form['password']
+
+            # If the user typed something different than the old plain password, we validate it:
+            if new_password != user[9]:  # user[9] is the old plainPassword
+                # Apply the same complexity checks
+                pattern = r'^(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{12,}$'
+                if not re.match(pattern, new_password):
+                    flash("Password must be at least 12 characters, include an uppercase letter, and contain at least one special character.")
+                    return redirect(url_for('profile'))
+
+                # If valid, hash the new password
+                hashed_pw = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+            else:
+                # If no change, keep the existing hashed password
+                hashed_pw = user[2]  # old hashed password
+                new_password = user[9]  # keep the same plain
+
             UserModel.updateUser(
-                userId, username, hashed_pw, fullName, email, phone, 
-                linkedin, location, portfolio
+                userId, 
+                username,
+                hashed_pw,        # hashed password
+                new_password,     # plain password
+                fullName,
+                email,
+                phone,
+                linkedin,
+                location,
+                portfolio
             )
             return redirect(url_for('profile'))
         
         return redirect(url_for('profile'))
 
-    def signUpTemp(full_name, email, phone, username, password): #to be deleted later (it create user to add simulated data in initDb)
+    def signUpTemp(full_name, email, phone, username, password): # to be used to create data in initDb
         """
         Creates a new user after checking:
-         - username availability
-         - password complexity (≥12 chars, 1 uppercase, 1 special char)
          - hashed password stored in DB
+         - also storing plain password for simulation
         """
-
-        # 3) Hash the password before storing
-        #hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         password_bytes = password.encode('utf-8')
         salt = bcrypt.gensalt()
         hashed_result = bcrypt.hashpw(password_bytes, salt)
         if isinstance(hashed_result, bytes):
             hashed_pw = hashed_result.decode('utf-8')
         else:
-            hashed_pw = hashed_result  # It's already a string
-        #hashed_pw = hashed_bytes.decode('utf-8')
+            hashed_pw = hashed_result
 
-        # 4) Create user in the database
         new_user_id = UserModel.addUser(
-            username, hashed_pw, full_name, email, phone, '', '', ''
+            username, hashed_pw, password, full_name, email, phone, '', '', ''
         )
-        
-
         return new_user_id

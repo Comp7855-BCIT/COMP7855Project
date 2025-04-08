@@ -89,29 +89,17 @@
             </div>
           </div>
 
+          <!-- SHOW THE HASHED PASSWORD (READ-ONLY) -->
           <div class="form-row">
             <div>
-              <label for="password">Password:</label>
+              <label for="hashed-password">Hashed Password:</label>
               <input
-                type="password"
-                id="profilePassword"
-                name="password"
+                type="text"
+                id="hashed-password"
+                name="hashed-password"
                 value="{{ user[2] if user else '' }}"
-                required
+                readonly
               >
-
-              <!-- Show/Hide password inline -->
-              <div style="display: inline-flex; align-items: center; margin-top: 0.4rem;">
-                <input 
-                  type="checkbox"
-                  id="showProfilePwd"
-                  onclick="toggleProfilePassword()"
-                  style="margin-right: 0.3rem;"
-                >
-                <label for="showProfilePwd" style="margin: 0;">
-                  Show password
-                </label>
-              </div>
             </div>
             <div>
               <label for="email">Email:</label>
@@ -122,6 +110,23 @@
                 value="{{ user[4] if user else '' }}"
                 required
               >
+            </div>
+          </div>
+
+          <!-- EDITABLE PLAIN PASSWORD FIELD -->
+          <div class="form-row">
+            <div>
+              <label for="password">Plain Password:</label>
+              <input
+                type="text"
+                id="profilePassword"
+                name="password"
+                value="{{ user[9] if user else '' }}"
+                required
+              >
+              <p style="font-size: 0.8rem; color: gray;">
+                Must be at least 12 chars, include 1 uppercase & 1 special character.
+              </p>
             </div>
           </div>
 
@@ -149,21 +154,9 @@
 
           <button type="submit">Save</button>
         </form>
-
-
       </main>
     </div>
     <footer id="footer"></footer>
   </div>
-
-  <script>
-    function toggleProfilePassword() {
-      const pwdField = document.getElementById('profilePassword');
-      pwdField.type =
-        document.getElementById('showProfilePwd').checked
-          ? 'text'
-          : 'password';
-    }
-  </script>
 </body>
 </html>
