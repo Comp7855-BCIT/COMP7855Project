@@ -120,8 +120,6 @@ def archiveJob():
     print("Job archive page")
     return render_template('archiveJob.html')
 
-
-
 ######### Expirence page ######### 
 from flask import jsonify
 @app.route('/newExperience', methods=['GET', 'POST'])
@@ -198,7 +196,6 @@ def editCertificationByTitle(title):
 def editEducationByTitle(title):
     return ExperienceController.editEducationByTitle(title)
 
-
 ######### Documents page ######### 
 @app.route('/download', methods=['POST'])
 def download():
@@ -226,6 +223,9 @@ def download():
     </html>
     """
 
+    # NOTE: weasyprint usage is commented out, so this is unused. 
+    # Using docx for Word docs. (If you want PDFs, re-enable weasyprint or pdfkit)
+
     if format_type in ['1', '3']:  # PDF or both
         pdf_path = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf').name
         HTML(string=html_content).write_pdf(pdf_path)
@@ -242,6 +242,7 @@ def download():
         return send_file(word_path, as_attachment=True, download_name="documents.docx")
 
     return "Invalid format", 400
+
 @app.route('/generateBoth/<int:jobId>', methods=['GET', 'POST'])
 def generate_both(jobId):
     if 'userId' not in session:
@@ -356,8 +357,8 @@ def download_resume(jobId):
     
     try:
         # Get job title for filename - use getJobById instead of getJobs
-        job = JobModel.getJobById(jobId)  # Changed from getJobs to getJobById
-        job_title = job[2] if job else "resume"  # job[2] is the title
+        job = JobModel.getJobById(jobId)
+        job_title = job[2] if job else "resume"
         
         # Handle case where job_title might be None
         if not job_title:
@@ -390,15 +391,15 @@ def download_cover_letter(jobId):
     
     # Generate the PDF
     pdf_path = DocumentModel.generate_pdf_from_cover(userId, jobId)
-    print(f"Attempting to download cover letter for job {jobId}")  # Add this at start of route
+    print(f"Attempting to download cover letter for job {jobId}")
     if not pdf_path:
         flash("Error generating cover letter PDF", "error")
         return redirect(url_for('index'))
     
     try:
         # Get job title for filename - use getJobById instead of getJobs
-        job = JobModel.getJobById(jobId)  # Changed from getJobs to getJobById
-        job_title = job[2] if job else "coverLetter"  # job[2] is the title
+        job = JobModel.getJobById(jobId)
+        job_title = job[2] if job else "coverLetter"
         
         # Handle case where job_title might be None
         if not job_title:
@@ -440,6 +441,7 @@ def get_documents(jobId):
     except Exception as e:
         print(f"Error getting documents: {str(e)}")
         return jsonify({"error": "Error getting documents"}), 500  
+
 @app.route('/testGenerate/<int:jobId>')
 def test_generate(jobId):
     if 'userId' not in session:
@@ -468,6 +470,8 @@ def list_jobs():
     result += "</ul>"
     
     return result
+
+
 if __name__ == '__main__':
     initDb()
     userId = 1

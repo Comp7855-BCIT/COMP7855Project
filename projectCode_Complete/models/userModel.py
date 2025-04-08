@@ -44,14 +44,15 @@ class UserModel:
         conn.close()
         return user[0] if user else None
 
+    # ADDED plainPassword in parameters and in the INSERT statement
     @staticmethod
-    def addUser(username, password, fullName, email, phone, linkedin, location, portfolio):
+    def addUser(username, password, plainPassword, fullName, email, phone, linkedin, location, portfolio):
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
         cursor.execute('''
-            INSERT INTO users (username, password, fullName, email, phone, linkedin, location, portfolio)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (username, password, fullName, email, phone, linkedin, location, portfolio))
+            INSERT INTO users (username, password, plainPassword, fullName, email, phone, linkedin, location, portfolio)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (username, password, plainPassword, fullName, email, phone, linkedin, location, portfolio))
         conn.commit()
         user_id = cursor.lastrowid
         conn.close()
@@ -84,15 +85,16 @@ class UserModel:
         conn.close()
         return (count > 0)
 
+    # ADDED plainPassword in parameters and in the UPDATE statement
     @staticmethod
-    def updateUser(userId, username, password, fullName, email, phone, linkedin, location, portfolio):
+    def updateUser(userId, username, password, plainPassword, fullName, email, phone, linkedin, location, portfolio):
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
         cursor.execute('''
             UPDATE users
-            SET username = ?, password = ?, fullName = ?, email = ?, phone = ?, linkedin = ?, location = ?, portfolio = ?
+            SET username = ?, password = ?, plainPassword = ?, fullName = ?, email = ?, phone = ?, linkedin = ?, location = ?, portfolio = ?
             WHERE id = ?
-        ''', (username, password, fullName, email, phone, linkedin, location, portfolio, userId))
+        ''', (username, password, plainPassword, fullName, email, phone, linkedin, location, portfolio, userId))
         conn.commit()
         conn.close()
         print("User profile updated successfully.")
