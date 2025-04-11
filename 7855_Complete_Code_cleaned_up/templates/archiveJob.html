@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='media/logoSmall.png') }}" />
+		<title>CareerForge</title>
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+				<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+	</head>
+	<body>
+	<div id="#wrapper">
+		<header>
+			<div class="logo">
+				<img src="{{ url_for('static', filename='media/logo.png') }}" alt="Logo" class="logo">
+				<p class="slogan">Making job applications easy &#128640;</p>
+			</div>
+			<nav>
+				<button onclick="location.href='/'">Back to Main</button>
+			</nav>
+		</header>
+		<div id="content">
+			<main>
+				
+				<h1>📂 Job Archive</h1>
+				<table id="job-table">
+					<thead>
+						<tr>
+							<th>Job Title</th>
+							<th>Deadline</th>
+							
+						</tr>
+					</thead>
+					<tbody>
+						{% for job in jobs %}
+						<tr>
+							<td><a href="{{ url_for('newJob', jobId=job[0]) }}">{{ job[2] }}</a></td>
+							<td>{{ job[5] }}</td>  <!-- job[5] is the deadline -->
+						</tr>
+						{% else %}
+						<tr>
+							<td colspan="2">No jobs available</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+				
+				
+			</main>
+		</div>
+		<footer id="footer">    
+		</footer>
+		
+	</div>
+	</body>
+</html>

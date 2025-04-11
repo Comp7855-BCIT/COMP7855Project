@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='media/logoSmall.png') }}" />
+    <title>{{ 'Edit Project' if project else 'New Project' }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="#wrapper">
+      <header>
+        <div class="logo">
+          <img src="{{ url_for('static', filename='media/logo.png') }}" alt="Logo" class="logo" />
+          <p class="slogan">Making job applications easy &#128640;</p>
+        </div>
+        <nav>
+          <button onclick="location.href='/'">Back to Main</button>
+          <button onclick="location.href='../newExperience'">Back to New Experience</button>
+        </nav>
+      </header>
+      <div id="content">
+        <main>
+          <h1>{{ 'Edit Project' if project else 'New Project' }}</h1>
+          <form method="POST" action="{{ url_for('editProjectByTitle', title=project[2]) if project else '/newProject' }}">
+            <label for="project-name">Name:</label>
+            <input type="text" id="project-name" name="project-name" value="{{ project[2] if project else '' }}" required />
+            <label for="project-technologies">Technologies:</label>
+            <textarea id="project-technologies" name="project-technologies" required>{{ project[4] if project else '' }}</textarea>
+            <label for="project-description">Description:</label>
+            <textarea id="project-description" name="project-description" required>{{ project[3] if project else '' }}</textarea>
+            <label for="project-impact">Impact (optional):</label>
+            <textarea id="project-impact" name="project-impact">{{ project[5] if project else '' }}</textarea>
+            <button type="submit">Save</button>
+            {% if project %}
+            <button class="delete-button" type="button" onclick="confirmDelete('{{ project[2] }}')">Delete</button>
+            {% endif %}
+          </form>
+        </main>
+      </div>
+      <footer id="footer"></footer>
+      <script>
+        function confirmDelete(projTitle) {
+          if (confirm(`Are you sure you want to delete the project: ${projTitle}?`)) {
+            fetch(`/deleteExperience`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ category: 'Project', title: projTitle })
+            })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                alert('Project deleted successfully.');
+                window.location.href = '/newExperience';
+              } else {
+                alert('Failed to delete project.');
+              }
+            })
+            .catch(err => {
+              console.error('Error:', err);
+              alert('An error occurred while deleting project.');
+            });
+          }
+        }
+      </script>
+    </div>
+  </body>
+</html>
