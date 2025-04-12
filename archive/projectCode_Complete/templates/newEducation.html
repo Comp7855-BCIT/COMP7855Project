@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='media/logoSmall.png') }}" />
+    <title>{{ 'Edit Education' if education else 'New Education' }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="#wrapper">
+      <header>
+        <div class="logo">
+          <img src="{{ url_for('static', filename='media/logo.png') }}" alt="Logo" class="logo" />
+          <p class="slogan">Making job applications easy &#128640;</p>
+        </div>
+        <nav>
+          <button onclick="location.href='/'">Back to Main</button>
+          <button onclick="location.href='../newExperience'">Back to New Experience</button>
+        </nav>
+      </header>
+      <div id="content">
+        <main>
+          <h1>{{ 'Edit Education' if education else 'New Education' }}</h1>
+          <form method="POST" action="{{ url_for('editEducationByTitle', title=education[2]) if education else '/newEducation' }}">
+            <label for="education-degree">Degree:</label>
+            <input type="text" id="education-degree" name="education-degree" value="{{ education[2] if education else '' }}" required />
+            <label for="education-university">University:</label>
+            <input type="text" id="education-university" name="education-university" value="{{ education[3] if education else '' }}" required />
+            <label for="education-year">Graduation year:</label>
+            <input type="text" id="education-year" name="education-year" value="{{ education[4] if education else '' }}" required />
+            <button type="submit">Save</button>
+            {% if education %}
+            <button class="delete-button" type="button" onclick="confirmDelete('{{ education[2] }}')">Delete</button>
+            {% endif %}
+          </form>
+        </main>
+      </div>
+      <footer id="footer"></footer>
+      <script>
+        function confirmDelete(eduTitle) {
+          if (confirm(`Are you sure you want to delete the degree: ${eduTitle}?`)) {
+            fetch(`/deleteExperience`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ category: 'Education', title: eduTitle })
+            })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                alert('Education deleted successfully.');
+                window.location.href = '/newExperience';
+              } else {
+                alert('Failed to delete education.');
+              }
+            })
+            .catch(err => {
+              console.error('Error:', err);
+              alert('An error occurred while deleting education.');
+            });
+          }
+        }
+      </script>
+    </div>
+  </body>
+</html>
