@@ -3,11 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='media/logoSmall.png') }}" />
+  <link 
+    rel="shortcut icon" 
+    type="image/x-icon" 
+    href="{{ url_for('static', filename='media/logoSmall.png') }}"
+  />
   <title>Profile</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <link 
+    rel="stylesheet" 
+    href="{{ url_for('static', filename='css/styles.css') }}"
+  >
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link 
+    rel="preconnect" 
+    href="https://fonts.gstatic.com" 
+    crossorigin
+  >
   <link 
     href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700
     &family=Raleway:ital,wght@0,100..900;1,100..900&display=swap"
@@ -28,9 +39,10 @@
       <nav>
         <button onclick="location.href='/'">Back to Main</button>
         <div class="top-right-buttons">
+          <!-- CHANGED: Add a confirm dialog and new route instead of signout -->
           <button
             class="sign-out"
-            onclick="location.href='{{ url_for('signout') }}'"
+            onclick="confirmDeleteUser('{{ user[1] }}', {{ user[0] }})"
           >
             Delete
           </button>
@@ -158,5 +170,17 @@
     </div>
     <footer id="footer"></footer>
   </div>
+
+  <!-- ADDED: Confirmation script -->
+  <script>
+    function confirmDeleteUser(username, userId) {
+      const yes = confirm(`Are you sure you want to delete User: ${username}?`);
+      if (yes) {
+        // Go to /deleteUser/<userId>, removing them from DB
+        window.location.href = `/deleteUser/${userId}`;
+      }
+      // If "Cancel," do nothing
+    }
+  </script>
 </body>
 </html>

@@ -33,7 +33,6 @@ class UserController:
                     linkedin, location, portfolio
                 )
             else:
-                # Creating a user from userProfile? (Probably not used but let's be consistent)
                 hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
                 UserModel.addUser(
                     userName, hashed_pw, password, fullName, email, phone,
@@ -193,6 +192,7 @@ class UserController:
         
         return redirect(url_for('profile'))
 
+    @staticmethod
     def signUpTemp(full_name, email, phone, username, password): # to be used to create data in initDb
         """
         Creates a new user after checking:
@@ -211,3 +211,19 @@ class UserController:
             username, hashed_pw, password, full_name, email, phone, '', '', ''
         )
         return new_user_id
+
+    ######### NEW METHOD: DELETE ACCOUNT #########
+    @staticmethod
+    def deleteAccount(userId):
+        """
+        Permanently delete this user from the DB if authorized,
+        then log them out.
+        """
+        if 'userId' not in session or session['userId'] != userId:
+            flash("Unauthorized to delete this user.")
+            return redirect(url_for('login'))
+
+        UserModel.deleteUserById(userId)
+        session.pop('userId', None)
+        flash("Your account has been deleted.")
+        return redirect(url_for('login'))

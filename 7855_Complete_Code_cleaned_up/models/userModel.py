@@ -98,3 +98,13 @@ class UserModel:
         conn.commit()
         conn.close()
         print("User profile updated successfully.")
+
+    ######### NEW METHOD: DELETE USER #########
+    @staticmethod
+    def deleteUserById(userId):
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM users WHERE id = ?", (userId,))
+        conn.commit()
+        conn.close()
+        print(f"User with ID {userId} deleted from the database.")

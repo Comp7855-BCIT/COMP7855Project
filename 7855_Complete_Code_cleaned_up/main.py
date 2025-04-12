@@ -6,22 +6,23 @@
 # Date modified: Mar 10, 2025
 # ----------------------------------------------
 # main.py
+
 from flask import send_file
 import tempfile
 import os
 
-from flask import Flask, render_template, redirect, url_for, session, request, flash
+from flask import Flask, render_template, redirect, url_for, session, request, flash, jsonify
 from controllers.apiController import apiController
 from controllers.documentController import DocumentController
 from controllers.userController import UserController
 from controllers.jobController import JobController
 from controllers.experienceController import ExperienceController
-#from models.jobModel import JobModel
-#from models.apiModel import apiModel
-#from models.documentModel import DocumentModel
+# from models.jobModel import JobModel
+# from models.apiModel import apiModel
+# from models.documentModel import DocumentModel
 from initDb import initDb, simulateUserData
 from flask import request, send_file
-#from weasyprint import HTML
+# from weasyprint import HTML
 from docx import Document
 import tempfile
 
@@ -101,7 +102,16 @@ def signUp():
 def signout():
     return UserController.signout()
 
-######### Job page ######### 
+######### NEW: Delete user route #########
+@app.route('/deleteUser/<int:userId>', methods=['GET'])
+def deleteUserRoute(userId):
+    """
+    Allows the user to delete their account if authorized.
+    Calls UserController.deleteAccount(...).
+    """
+    return UserController.deleteAccount(userId)
+
+######### Job page #########
 @app.route('/newJob', methods=['GET', 'POST'])
 @app.route('/newJob/<int:jobId>', methods=['GET', 'POST'])
 def newJob(jobId=None):
@@ -122,7 +132,7 @@ def archiveJob():
     print("Job archive page")
     return render_template('archiveJob.html')
 
-######### Expirence page ######### 
+######### Expirence page #########
 from flask import jsonify
 @app.route('/newExperience', methods=['GET', 'POST'])
 def newExperience():
@@ -198,7 +208,7 @@ def editCertificationByTitle(title):
 def editEducationByTitle(title):
     return ExperienceController.editEducationByTitle(title)
 
-######### Documents page ######### 
+######### Documents page #########
 @app.route('/download', methods=['POST'])
 def download():
     format_type = request.form.get('download-as')
@@ -230,7 +240,7 @@ def download():
 
     if format_type in ['1', '3']:  # PDF or both
         pdf_path = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf').name
-        HTML(string=html_content).write_pdf(pdf_path)
+        # HTML(string=html_content).write_pdf(pdf_path)
         return send_file(pdf_path, as_attachment=True, download_name="documents.pdf")
 
     if format_type in ['2']:  # Word only
@@ -253,11 +263,9 @@ def generate_both(jobId):
     userId = session['userId']
     
     try:
-        # Generate resume and cover letter
         resume_html = apiController.generateResume(userId, jobId)
         cover_letter_html = apiController.generateCoverLetter(userId, jobId)
         
-        # If no resume HTML was generated, create a default structure
         if not resume_html:
             resume_html = """
             <div style="font-family: Arial, sans-serif; padding: 20px;">
@@ -266,7 +274,6 @@ def generate_both(jobId):
             </div>
             """
         
-        # If no cover letter HTML was generated, create a default structure
         if not cover_letter_html:
             cover_letter_html = """
             <div style="font-family: Arial, sans-serif; padding: 20px;">
@@ -275,7 +282,6 @@ def generate_both(jobId):
             </div>
             """
         
-        # Return the generated content as JSON
         return jsonify({
             "resume": resume_html if resume_html else "",
             "coverLetter": cover_letter_html if cover_letter_html else ""
@@ -291,14 +297,14 @@ def save_resume(jobId):
     
     userId = session['userId']
     resume_content = request.json.get('resumeContent')
-    cover_letter_content = request.json.get('coverLetterContent')  # Extract cover letter content
+    cover_letter_content = request.json.get('coverLetterContent')
     
     if not resume_content:
         return jsonify({"error": "No resume content provided"}), 400
     if not cover_letter_content:
         return jsonify({"error": "No cover letter content provided"}), 400
     
-    conn = None  # Initialize conn as None
+    conn = None
     try:
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
@@ -340,7 +346,7 @@ def save_resume(jobId):
         return jsonify({"error": str(e)}), 500
     
     finally:
-        if conn:  # Only close if conn was successfully created
+        if conn:
             conn.close()
 
 @app.route('/downloadResume/<int:jobId>')
@@ -350,7 +356,6 @@ def download_resume(jobId):
     
     userId = session['userId']
     
-    # Generate the PDF
     pdf_path = DocumentController.generate_pdf_from_resume(userId, jobId)
     print(f"Attempting to download resume for job {jobId}")
     if not pdf_path:
@@ -358,25 +363,16 @@ def download_resume(jobId):
         return redirect(url_for('index'))
     
     try:
-        # Get job title for filename - use getJobById instead of getJobs
         job = JobController.viewJobById(jobId)
         job_title = job[2] if job else "resume"
         
-        # Handle case where job_title might be None
         if not job_title:
             job_title = "resume"
             
         safe_filename = "".join(c for c in str(job_title) if c.isalnum() or c in (' ', '_')).rstrip()
         filename = f"{safe_filename}_resume.pdf"
         
-        response = send_file(
-            pdf_path,
-            as_attachment=True,
-            download_name=filename,
-            mimetype='application/pdf'
-        )
-        
-        # Ensure the file gets deleted after sending
+        response = send_file(pdf_path, as_attachment=True, download_name=filename, mimetype='application/pdf')
         response.call_on_close(lambda: os.unlink(pdf_path))
         return response
     except Exception as e:
@@ -391,7 +387,6 @@ def download_cover_letter(jobId):
     
     userId = session['userId']
     
-    # Generate the PDF
     pdf_path = DocumentController.generate_pdf_from_cover(userId, jobId)
     print(f"Attempting to download cover letter for job {jobId}")
     if not pdf_path:
@@ -399,25 +394,16 @@ def download_cover_letter(jobId):
         return redirect(url_for('index'))
     
     try:
-        # Get job title for filename - use getJobById instead of getJobs
         job = JobController.viewJobById(jobId)
         job_title = job[2] if job else "coverLetter"
         
-        # Handle case where job_title might be None
         if not job_title:
             job_title = "coverLetter"
             
         safe_filename = "".join(c for c in str(job_title) if c.isalnum() or c in (' ', '_')).rstrip()
         filename = f"{safe_filename}_cover_letter.pdf"
         
-        response = send_file(
-            pdf_path,
-            as_attachment=True,
-            download_name=filename,
-            mimetype='application/pdf'
-        )
-        
-        # Ensure the file gets deleted after sending
+        response = send_file(pdf_path, as_attachment=True, download_name=filename, mimetype='application/pdf')
         response.call_on_close(lambda: os.unlink(pdf_path))
         return response
     except Exception as e:
@@ -450,9 +436,7 @@ def test_generate(jobId):
         return "Not logged in", 401
     
     userId = session['userId']
-    
     try:
-        # Generate resume
         resume_html = apiController.generateResume(userId, jobId)
         return f"Resume generation test: {'Success' if resume_html else 'Failed'}"
     except Exception as e:
@@ -473,8 +457,7 @@ def list_jobs():
     
     return result
 
-
 if __name__ == '__main__':
     initDb()
-    userId = 1
+    # userId = 1
     app.run(debug=True, port=8000)
