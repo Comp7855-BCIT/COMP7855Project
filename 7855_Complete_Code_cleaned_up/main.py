@@ -236,7 +236,6 @@ def download():
     """
 
     # NOTE: weasyprint usage is commented out, so this is unused. 
-    # Using docx for Word docs. (If you want PDFs, re-enable weasyprint or pdfkit)
 
     if format_type in ['1', '3']:  # PDF or both
         pdf_path = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf').name
@@ -348,34 +347,48 @@ def save_resume(jobId):
     finally:
         if conn:
             conn.close()
-
 @app.route('/downloadResume/<int:jobId>')
 def download_resume(jobId):
+    # Check if the user is logged in. If not, redirect to login page.
     if 'userId' not in session:
         return redirect(url_for('login'))
     
+    # Retrieve the logged in user's ID from the session.
     userId = session['userId']
     
+    # Generate the resume PDF file for the given user and job.
+    # DocumentController.generate_pdf_from_resume is assumed to return the file path.
     pdf_path = DocumentController.generate_pdf_from_resume(userId, jobId)
     print(f"Attempting to download resume for job {jobId}")
+    
+    # If no PDF was generated, show an error message and redirect back to the main page.
     if not pdf_path:
         flash("Error generating resume PDF", "error")
         return redirect(url_for('index'))
     
     try:
+        # Retrieve job details using the job ID.
         job = JobController.viewJobById(jobId)
+        # Assuming that the job title is stored at index 2 in the job tuple,
+        # assign it to 'job_title'; if not available, default to "resume".
         job_title = job[2] if job else "resume"
         
+        # If job_title is empty or None, set it to "resume".
         if not job_title:
             job_title = "resume"
             
+        # Create a safe filename by including only alphanumeric characters, spaces, and underscores.
         safe_filename = "".join(c for c in str(job_title) if c.isalnum() or c in (' ', '_')).rstrip()
         filename = f"{safe_filename}_resume.pdf"
         
+        # Send the PDF file using Flask's send_file. It is sent as an attachment with a custom filename.
         response = send_file(pdf_path, as_attachment=True, download_name=filename, mimetype='application/pdf')
+        
+        # After sending the file, delete it from the file system to clean up temporary files.
         response.call_on_close(lambda: os.unlink(pdf_path))
         return response
     except Exception as e:
+        # If there is an error, log it, show a flash message and redirect back to the main page.
         print(f"Error sending file: {e}")
         flash("Error downloading resume", "error")
         return redirect(url_for('index'))

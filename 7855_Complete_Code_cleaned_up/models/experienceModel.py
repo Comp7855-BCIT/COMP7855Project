@@ -89,7 +89,6 @@ class ExperienceModel:
     def updateExperience():
         pass
 
-
     def delete_experience(self, user_id, category, title):
         """Delete an experience from the appropriate table"""
         conn = self.connect()
@@ -212,7 +211,6 @@ class ExperienceModel:
         ''', (new_title, issuer, year, user_id, old_title))
         conn.commit()
         conn.close()
-
 
     def get_education_by_title(self, user_id, title):
         conn = self.connect()

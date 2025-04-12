@@ -51,7 +51,6 @@ class JobModel:
         conn.close()
         return jobs
 
-
     @staticmethod
     def getJobById(jobId):
         try:

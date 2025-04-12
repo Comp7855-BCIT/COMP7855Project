@@ -13,10 +13,6 @@ import bleach
 import os
 import sys
 
-
-    
-    
-# In documentModel.py
 class DocumentModel:
     @staticmethod
     def get_resume(userId, jobId):

@@ -170,8 +170,6 @@ def initDb():
     conn.commit()
     conn.close()
 
-# ... (previous code remains the same until simulateUserData function)
-
 def simulateUserData():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
@@ -249,8 +247,6 @@ def simulateUserData():
         ))
 
     # ---------------- SIMULATING WORK EXPERIENCE ----------------
-    # (Truncated for brevity...)
-    # Just showing structure is the same.
 
     conn.commit()
     conn.close()
