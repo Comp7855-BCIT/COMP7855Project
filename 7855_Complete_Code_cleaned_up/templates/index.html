@@ -9,20 +9,32 @@
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link 
+    href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900
+    &family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap" 
+    rel="stylesheet"
+  >
 </head>
 <body>
 <header>
   <div class="logo">
-    <img src="{{ url_for('static', filename='media/logo.png') }}" alt="Logo" class="logo">
+    <img 
+      src="{{ url_for('static', filename='media/logo.png') }}" 
+      alt="Logo" 
+      class="logo"
+    >
     <p class="slogan">Making job applications easy &#128640;</p>
   </div>
   <nav>
     <button onclick="location.href='newJob'">New Job</button>
     <button onclick="location.href='newExperience'">New Experience</button>
     <div class="top-right-buttons">
-      <button class="sign-out" onclick="location.href='{{ url_for('signout') }}'">Sign Out</button>
-      <button class="user-profile" onclick="location.href='profile'">Settings</button>
+      <button class="sign-out" onclick="location.href='{{ url_for('signout') }}'">
+        Sign Out
+      </button>
+      <button class="user-profile" onclick="location.href='profile'">
+        Settings
+      </button>
     </div>
   </nav>
 </header>
@@ -30,28 +42,38 @@
 <div id="#wrapper">
   <div id="content">
     <main>
-      <h3 class="welcoming-message">Hello <span class="name">{{ username }}</span>! Ready to apply to new jobs &#128513;</h3>
-	  
+      <h3 class="welcoming-message">
+        Hello <span class="name">{{ username }}</span>! 
+        Ready to apply to new jobs &#128513;
+      </h3>
 
       <!-- FILTER FORM -->
       <form method="GET" action="/">
         <label for="status">Filter by Status:</label>
         <select name="status" id="status">
           <option value="">All</option>
-          <option value="📝 Want to apply" 
-            {% if request.args.get('status') == "📝 Want to apply" %}selected{% endif %}>
+          <option 
+            value="📝 Want to apply"
+            {% if request.args.get('status') == "📝 Want to apply" %}selected{% endif %}
+          >
             📝 Want to apply
           </option>
-          <option value="⏳ Applied and waiting"
-            {% if request.args.get('status') == "⏳ Applied and waiting" %}selected{% endif %}>
+          <option 
+            value="⏳ Applied and waiting"
+            {% if request.args.get('status') == "⏳ Applied and waiting" %}selected{% endif %}
+          >
             ⏳ Applied and waiting
           </option>
-          <option value="💼 Interview"
-            {% if request.args.get('status') == "💼 Interview" %}selected{% endif %}>
+          <option 
+            value="💼 Interview"
+            {% if request.args.get('status') == "💼 Interview" %}selected{% endif %}
+          >
             💼 Interview
           </option>
-          <option value="📂 Archive"
-            {% if request.args.get('status') == "📂 Archive" %}selected{% endif %}>
+          <option 
+            value="📂 Archive"
+            {% if request.args.get('status') == "📂 Archive" %}selected{% endif %}
+          >
             📂 Archive
           </option>
         </select>
@@ -63,11 +85,18 @@
       <table id="job-table">
         <thead>
           <tr>
-            <!-- Added onclick handlers and arrow placeholders for each column -->
-            <th onclick="toggleSort(0)">Job Title <span id="arrow-0">&#9650;</span></th>
-            <th onclick="toggleSort(1)">Company <span id="arrow-1">&#9650;</span></th>
-            <th onclick="toggleSort(2)">Deadline <span id="arrow-2">&#9650;</span></th>
-            <th onclick="toggleSort(3)">Status <span id="arrow-3">&#9650;</span></th>
+            <th onclick="toggleSort(0)">
+              Job Title <span id="arrow-0">&#9650;</span>
+            </th>
+            <th onclick="toggleSort(1)">
+              Company <span id="arrow-1">&#9650;</span>
+            </th>
+            <th onclick="toggleSort(2)">
+              Deadline <span id="arrow-2">&#9650;</span>
+            </th>
+            <th onclick="toggleSort(3)">
+              Status <span id="arrow-3">&#9650;</span>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -94,7 +123,8 @@
         {% if aiSuggestions %}
           {% for suggestion in aiSuggestions %}
             <div class="job">
-              <h4  class="job-title">{{ suggestion.jobTitle }}</h4>
+              <!-- Original "Read more" setup -->
+              <h4 class="job-title">{{ suggestion.jobTitle }}</h4>
               <p>{{ suggestion.company }}</p>
               <p>{{ suggestion.matchScore }}% match</p>
               <a class="add-me" href="{{ suggestion.link }}">Read more</a>
@@ -108,11 +138,12 @@
       <!-- Refresh button -->
       <button id="refresh-suggestions">Refresh</button>
 
+      <!-- The crucial JS block with updated "Read more" text -->
       <script>
         document.getElementById("refresh-suggestions").addEventListener("click", function() {
             const refreshButton = document.getElementById("refresh-suggestions");
-            refreshButton.disabled = true;  // Disable button
-            refreshButton.textContent = "Searching...";  // Change text
+            refreshButton.disabled = true;
+            refreshButton.textContent = "Searching...";
 
             fetch(`/generateSuggestions/{{ user_id }}`)
                 .then(response => response.json())
@@ -128,12 +159,15 @@
                     data.forEach(job => {
                         const jobElement = document.createElement("div");
                         jobElement.classList.add("job");
+                        
+                        // CHANGED FROM "Apply" BUTTON TO "Read more" LINK
                         jobElement.innerHTML = `
-                            <a href="${job.link}" class="job-title">${job.jobTitle}</a>
+                            <h4 class="job-title">${job.jobTitle}</h4>
                             <p>${job.company}</p>
                             <p>${job.matchScore}% match</p>
-                            <button class="add-me">Apply</button>
+                            <a class="add-me" href="${job.link}" target="_blank">Read more</a>
                         `;
+                        
                         aiContainer.appendChild(jobElement);
                     });
                 })
@@ -141,13 +175,11 @@
                     console.error("Error fetching AI suggestions:", error);
                 })
                 .finally(() => {
-                    // Re-enable button after fetching completes
                     refreshButton.disabled = false;
                     refreshButton.textContent = "Refresh";
                 });
         });
       </script>
-
 
       <!-- Sorting Logic for Table Columns -->
       <script>
@@ -222,8 +254,8 @@
         <summary>💼 Ace the Interview with Confidence</summary>
         <ul>
           <li>Practice common interview questions, but don’t memorize answers—keep it natural.</li>
-          <li>Prepare a few questions to ask the interviewer (e.g., “What does success look like in this role?” or “How would you describe the team culture?”).</li>
-          <li>Dress appropriately, show up on time (or a few minutes early for virtual interviews), and don’t forget to smile! A little confidence goes a long way.</li>
+          <li>Prepare a few questions to ask the interviewer (e.g., “What does success look like in this role?”).</li>
+          <li>Dress appropriately, show up on time (or early for virtual interviews), and don’t forget to smile! A little confidence goes a long way.</li>
         </ul>
       </details>
     </main>
