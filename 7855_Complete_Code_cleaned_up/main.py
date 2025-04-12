@@ -11,7 +11,7 @@ import tempfile
 import os
 
 from flask import Flask, render_template, redirect, url_for, session, request, flash
-from controllers import apiController
+from controllers.apiController import apiController
 from controllers.documentController import DocumentController
 from controllers.userController import UserController
 from controllers.jobController import JobController
@@ -21,7 +21,7 @@ from controllers.experienceController import ExperienceController
 #from models.documentModel import DocumentModel
 from initDb import initDb, simulateUserData
 from flask import request, send_file
-from weasyprint import HTML
+#from weasyprint import HTML
 from docx import Document
 import tempfile
 

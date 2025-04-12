@@ -1,7 +1,7 @@
 # ----------------------------------------------
 # Title: apiModel.py
 # Description: Uses AI API to generate responses
-# Author(s): Yui 
+# Author(s): Yui & Feliex
 # Date created: Mar 4, 2025
 # Date modified: Mar 4, 2025
 # ----------------------------------------------

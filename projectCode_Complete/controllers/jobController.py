@@ -1,7 +1,7 @@
 # ----------------------------------------------
 # Title: jobController.py
 # Description: user add, modify and delete job controller
-# Author(s): Jasmine
+# Author(s): Jasmine & Feliex
 # Date created: Feb 28, 2025
 # Date modified: Mar 10, 2025
 # ----------------------------------------------
@@ -64,12 +64,12 @@ class JobController:
         JobModel.deleteJob(jobId)
         return redirect(url_for('index'))
     
-    @staticmethod
-    def viewJobSuggestions(userId):
-        # example for job suggestions, not implemented
-        pass
+    # @staticmethod
+    # def viewJobSuggestions(userId):
+    #     # example for job suggestions, not implemented
+    #     pass
 
-    @staticmethod
-    def generateSuggestions(userId):
-        # example for job suggestions, not implemented
-        pass
+    # @staticmethod
+    # def generateSuggestions(userId):
+    #     # example for job suggestions, not implemented
+    #     pass

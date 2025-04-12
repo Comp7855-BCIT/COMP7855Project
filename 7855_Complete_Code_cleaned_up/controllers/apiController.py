@@ -5,14 +5,10 @@
 # Date created: Mar 7, 2025
 # Date modified: Mar 8, 2025
 # ----------------------------------------------
-# apiController.py
-# apiController.py
 
-import sqlite3
 from flask import flash
 from models.apiModel import apiModel
-from models.jobModel import JobModel
-from models.experienceModel import ExperienceModel
+
 
 class apiController:
     @staticmethod

@@ -1,7 +1,7 @@
 # ----------------------------------------------
 # Title: jobModel.py
 # Description: user add, modify and delete job model
-# Author(s): Felix
+# Author(s): Feliex
 # Date created: Feb 19, 2025
 # Date modified: Mar 10, 2025
 # ----------------------------------------------
