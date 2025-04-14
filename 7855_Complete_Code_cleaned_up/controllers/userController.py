@@ -1,10 +1,11 @@
 # ----------------------------------------------
 # Title: userController.py
 # Description: User profile controller
-# Author(s): Jasmine
+# Author(s): Marvin
 # Date created: Feb 28, 2025
 # Date modified: Mar 8, 2025
 # ----------------------------------------------
+
 import re
 import bcrypt
 from flask import session, redirect, url_for, render_template, request, flash
@@ -14,6 +15,7 @@ class UserController:
 
     @staticmethod
     def userProfile(userId):
+        # If the request method is POST, update or create the user profile
         if request.method == 'POST':
             # Parse incoming form data
             fullName = request.form['full-name']
@@ -26,22 +28,25 @@ class UserController:
             portfolio = request.form['portfolio']
 
             if userId:
-                # We want to hash the new password if the user changed it
+                # When updating, hash the new password if it has changed
                 hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+                # Update user profile in the database
                 UserModel.updateUser(
                     userId, userName, hashed_pw, password, fullName, email, phone,
                     linkedin, location, portfolio
                 )
             else:
+                # For a new user, hash the password and create the user record
                 hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
                 UserModel.addUser(
                     userName, hashed_pw, password, fullName, email, phone,
                     linkedin, location, portfolio
                 )
         
+            # After update/creation, redirect to the main page
             return redirect(url_for('index'))
 
-        # If GET and userId is provided, fetch the user details for editing
+        # For GET requests, fetch the current user details (if available)
         user = None
         if userId:
             user = UserModel.getUserById(userId)
@@ -50,8 +55,7 @@ class UserController:
     @staticmethod
     def login(userId):
         """
-        Old method that logs in user 1 or 2 by ID. 
-        Possibly unused now, if you have a real login with username/password.
+        Legacy login method that assigns the given userId to session.
         """
         session['userId'] = userId
         return redirect(url_for('index'))
@@ -59,26 +63,24 @@ class UserController:
     @staticmethod
     def signUp(full_name, email, phone, username, password):
         """
-        Creates a new user after checking:
-         - username availability
-         - password complexity (≥12 chars, 1 uppercase, 1 special char)
-         - hashed password stored in DB
+        Creates a new user by checking username availability and password complexity,
+        then stores the hashed and plain password in the database.
         """
-        # 1) Check if username is already in use
+        # Check if the username is already in use
         if UserModel.usernameExists(username):
             flash("Username is already taken, please choose another one.")
             return redirect(url_for('signUp'))
 
-        # 2) Validate password complexity
+        # Validate password complexity using a regex pattern
         pattern = r'^(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{12,}$'
         if not re.match(pattern, password):
             flash("Password must be at least 12 characters, include an uppercase letter, and contain at least one special character.")
             return redirect(url_for('signUp'))
 
-        # 3) Hash the password before storing
+        # Hash the password for secure storage
         hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
-        # 4) Create user in the database
+        # Create the user record in the database
         new_user_id = UserModel.addUser(
             username, hashed_pw, password, full_name, email, phone, '', '', ''
         )
@@ -86,9 +88,9 @@ class UserController:
 
         return redirect(url_for('index'))
     
-
     @staticmethod
     def getCurrentUser():
+        # Returns the current user record from the database if logged in; otherwise, returns None.
         if 'userId' in session:
             userId = session['userId']
             return UserModel.getUserById(userId)
@@ -96,6 +98,7 @@ class UserController:
 
     @staticmethod
     def getCurrentUsername():
+        # Returns the current user's fullName from the database if logged in; otherwise, returns None.
         if 'userId' in session:
             userId = session['userId']
             return UserModel.getUsernameById(userId)
@@ -103,14 +106,15 @@ class UserController:
 
     @staticmethod
     def signout():
-        # Clear the user ID from session
+        # Logs out the current user by removing 'userId' from the session.
         session.pop('userId', None)
         return redirect(url_for('login'))
     
     @staticmethod
     def viewProfile():
         """
-        Displays entire DB for debugging, then shows user profile page if logged in.
+        Displays the user profile page after printing the full database (for debugging).
+        Only works if the user is logged in.
         """
         UserModel.displayFullDatabase()
         if 'userId' not in session:
@@ -123,25 +127,27 @@ class UserController:
     @staticmethod
     def validateLogin(username, password):
         """
-        Checks user by username, compares hashed password.
-        If valid, returns user ID; otherwise None.
+        Validates the user login by comparing the provided password against the stored hashed password.
+        Returns the user ID if the login is valid, or None if invalid.
         """
         user = UserModel.getUserByUsername(username)
         if not user:
-            return None  # user not found
+            return None  # User not found
 
-        stored_password = user[2]  # hashed password in DB
-        # Compare using bcrypt
+        stored_password = user[2]  # Assuming hashed password is at index 2
+        # Use bcrypt to compare passwords
         if bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8')):
             return user[0]
         else:
             return None
 
+    # For updating the user profile
     @staticmethod
     def updateProfile():
         """
-        Called from the /profile POST if the user is editing profile info.
-        Allows updating both hashed & plain password with same complexity rules as signUp.
+        Updates the user profile based on form input.
+        Compares the new plain password with the stored plain password; if changed,
+        validates complexity and updates both the hashed and plain passwords.
         """
         if 'userId' not in session:
             return redirect(url_for('login'))
@@ -150,6 +156,7 @@ class UserController:
         user = UserModel.getUserById(userId)
         
         if request.method == 'POST':
+            # Parse form data
             fullName = request.form['full-name']
             username = request.form['user-name']
             phone = request.form['phone']
@@ -158,29 +165,29 @@ class UserController:
             linkedin = request.form.get('linkedin', '')
             portfolio = request.form.get('portfolio', '')
 
-            # The new password typed by user in the form
+            # Get the new plain password from form input
             new_password = request.form['password']
 
-            # If the user typed something different than the old plain password, we validate it:
-            if new_password != user[9]:  # user[9] is the old plainPassword
-                # Apply the same complexity checks
+            # If the new password differs from the stored plain password, validate and update
+            if new_password != user[9]:  # Assuming plain password is at index 9
                 pattern = r'^(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{12,}$'
                 if not re.match(pattern, new_password):
                     flash("Password must be at least 12 characters, include an uppercase letter, and contain at least one special character.")
                     return redirect(url_for('profile'))
 
-                # If valid, hash the new password
+                # Hash the new password
                 hashed_pw = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
             else:
-                # If no change, keep the existing hashed password
-                hashed_pw = user[2]  # old hashed password
-                new_password = user[9]  # keep the same plain
+                # If unchanged, keep the existing hashed and plain password
+                hashed_pw = user[2]
+                new_password = user[9]
 
+            # Update the user record with the new values
             UserModel.updateUser(
                 userId, 
                 username,
-                hashed_pw,        # hashed password
-                new_password,     # plain password
+                hashed_pw,        # updated hashed password
+                new_password,     # updated plain password
                 fullName,
                 email,
                 phone,
@@ -193,11 +200,9 @@ class UserController:
         return redirect(url_for('profile'))
 
     @staticmethod
-    def signUpTemp(full_name, email, phone, username, password): # to be used to create data in initDb
+    def signUpTemp(full_name, email, phone, username, password):  # to be used to create data in initDb
         """
-        Creates a new user after checking:
-         - hashed password stored in DB
-         - also storing plain password for simulation
+        Creates a new user (for simulation purposes) by hashing the password and storing both values.
         """
         password_bytes = password.encode('utf-8')
         salt = bcrypt.gensalt()
@@ -216,14 +221,16 @@ class UserController:
     @staticmethod
     def deleteAccount(userId):
         """
-        Permanently delete this user from the DB if authorized,
-        then log them out.
+        Permanently deletes the user from the database if the logged-in user matches.
+        Logs the user out after deletion and flashes a confirmation message.
         """
         if 'userId' not in session or session['userId'] != userId:
             flash("Unauthorized to delete this user.")
             return redirect(url_for('login'))
 
+        # Delete the user from the database using the model method.
         UserModel.deleteUserById(userId)
+        # Remove the user from session.
         session.pop('userId', None)
         flash("Your account has been deleted.")
         return redirect(url_for('login'))

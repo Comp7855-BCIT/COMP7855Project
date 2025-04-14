@@ -1,7 +1,7 @@
 # ----------------------------------------------
 # Title: apiModel.py
 # Description: Uses AI API to generate responses
-# Author(s): Yui 
+# Author(s): Yui, Feliex
 # Date created: Mar 4, 2025
 # Date modified: Mar 4, 2025
 # ----------------------------------------------
@@ -24,7 +24,6 @@ from jobspy import scrape_jobs
 from models.jobModel import JobModel
 from models.userModel import UserModel
 from models.experienceModel import ExperienceModel
-
 from models.documentModel import DocumentModel
 
 class apiModel:
@@ -34,28 +33,38 @@ class apiModel:
     @staticmethod
     def generateJobSuggestions(userId):
         """
-        1) Gather the user's experiences from the DB, truncating if needed.
-        2) Use JobSpy to scrape new jobs from Indeed.
-        3) Build a prompt that includes experiences + job data.
-        4) Send prompt to Groq, parse the AI's JSON output.
-        5) Save the suggestions into 'jobSuggestions' table.
-        6) Return the newly saved suggestions.
-
-        If you see 'invalid_api_key' or 401 errors, ensure api_key is correct.
-        If you see token-limit (413) errors, reduce the data in the prompt.
+        Combines user experiences and JobSpy data to generate AI job suggestions.
+        Steps:
+         0. Validate that the API key is set.
+         1. Retrieve and truncate the user's experience text.
+         2. Fetch the user's saved jobs and location.
+         3. Extract unique job titles from the saved jobs.
+         4. Ensure a valid location is available; default if necessary.
+         5. Use JobSpy to scrape new jobs based on job titles and location.
+         6. If no jobs are returned, exit.
+         7. Print the raw job DataFrame and its columns for debugging.
+         8. Shuffle and limit job results to reduce token usage.
+         9. Convert the DataFrame rows to a minimal JSON-like list.
+        10. Build a prompt including experience text and job data.
+        11. Call the Groq API with the prompt.
+        12. Check the API response for choices.
+        13. Extract the raw text from the AI response.
+        14. Extract the JSON substring (list of suggestions) from the response.
+        15. Parse the JSON substring.
+        16. Validate that the response is a list.
+        17. Save the suggestions to the database and return them.
         """
-
-        # 0) Validate the Groq API key
+        # 0) Validate the Groq API key is set
         if not apiModel.api_key:
             print("No Groq API key provided. Exiting.")
             return None
 
-        # 1) Gather user’s experiences, truncated to keep the prompt smaller
+        # 1) Retrieve and truncate the user experience text from ExperienceModel
         user_experience_text = apiModel._getUserExperienceText(userId)
         if not user_experience_text.strip():
             user_experience_text = "(No experiences)"
 
-        # Fetch user's saved jobs & location from the database
+        # 2) Fetch saved jobs and user location from the database
         jobs = JobModel.getJobs(userId)
         user_location = UserModel.getUserLocation(userId)
 
@@ -63,58 +72,55 @@ class apiModel:
             print("No jobs found in database.")
             return None
 
+        # 3) Extract unique job titles from the saved jobs
         job_titles = list(set(job[2] for job in jobs if job[2]))
-
         if not job_titles:
             print("No valid job titles found.")
             return None
 
-        # Ensure location is valid; fallback to a default location
+        # 4) Ensure a valid location; default to 'Vancouver, BC' if missing
         if not user_location:
             print("No location found for user. Defaulting to 'Vancouver, BC'.")
-            user_location = "Vancouver, BC"  # You can change this default if needed
+            user_location = "Vancouver, BC"
 
-        # Fetch jobs using JobSpy
+        # 5) Use JobSpy to scrape jobs from Indeed using the job titles and location
         try:
             print(f"Searching for jobs with titles: {job_titles} in {user_location}")
-
             job_df = scrape_jobs(
                 site_name="indeed",
                 search_term=" OR ".join(job_titles),
-                location=user_location,  
+                location=user_location,
                 results_wanted=5,
                 hours_old=336,
-                country_indeed='Canada' # Right now we have it to only pull jobs from Canada, can try to add a country paramter to adduser to pull this from the database?
+                country_indeed='Canada'
             )
         except Exception as e:
             print("Error scraping Indeed via JobSpy:", e)
             return None
 
-        # If no jobs returned, bail out
+        # 6) Check if jobs were returned; exit if not
         if not isinstance(job_df, pd.DataFrame) or job_df.empty:
             print("No jobs found from JobSpy.")
             return None
 
-        # Debug: Print the raw DataFrame in your console
+        # 7) Print raw job results for debugging
         print("\nRaw job results from JobSpy:\n", job_df)
         print("Columns returned by JobSpy:", job_df.columns)
 
-        # Shuffle or limit how many to pass to Groq to reduce token usage
+        # 8) Shuffle and limit job results to reduce the size of the prompt
         job_df = job_df.sample(frac=1).head(3).reset_index(drop=True)
 
-        # Convert these jobs to a small JSON-like list
+        # 9) Convert job DataFrame to a minimal JSON-like list with essential fields only
         job_list_for_ai = []
         for _, row in job_df.iterrows():
             job_list_for_ai.append({
                 "title": row.get("title", "Unknown"),
                 "company": row.get("company", "Unknown"),
                 "link": row.get("job_url", "#"),
-                # omit big fields to avoid token blowout
                 "description": "(omitted to save tokens)"
             })
 
-        # 3) Build your prompt
-        #    We'll ask for EXACTLY 3 suggestions in a JSON array.
+        # 10) Build the AI prompt with user experience and job data
         job_data_str = json.dumps(job_list_for_ai, indent=2)
         prompt = textwrap.dedent(f"""
         You are an AI job recommendation assistant.
@@ -132,35 +138,32 @@ class apiModel:
         Respond with ONLY valid JSON, no extra text. Example:
 
         [
-          {{
-            "jobTitle": "Software Engineer",
-            "company": "TechCorp",
-            "link": "https://example.com",
-            "matchScore": 70
-          }},
+          {{"jobTitle": "Software Engineer", "company": "TechCorp", "link": "https://example.com", "matchScore": 70}},
           ...
         ]
         """)
 
-        # 4) Call Groq with the prompt
+        # 11) Call Groq API with the prompt
         try:
             client = Groq(api_key=apiModel.api_key)
             chat_completion = client.chat.completions.create(
                 messages=[{"role": "user", "content": prompt}],
-                model="llama3-70b-8192",  # replace with your available model
+                model="llama3-70b-8192",  # Replace with the available model if necessary
             )
         except Exception as e:
             print(f"Error calling Groq: {e}")
             return None
 
+        # 12) Check that the API response contains choices
         if not chat_completion or not chat_completion.choices:
             print("No response from Groq.")
             return None
 
+        # 13) Extract the response text from the first choice
         response_text = chat_completion.choices[0].message.content.strip()
         print("\nAI Response:\n", response_text)
 
-        # 5) Extract bracketed JSON from the AI response
+        # 14) Extract the JSON substring from the AI response
         start_idx = response_text.find("[")
         end_idx = response_text.rfind("]")
         if start_idx == -1 or end_idx == -1 or end_idx < start_idx:
@@ -174,20 +177,20 @@ class apiModel:
             print(f"Error parsing JSON substring: {e}")
             return None
 
-        # The AI should produce a list of dicts with "jobTitle", "company", "link", "matchScore"
+        # 15) Verify the parsed response is a list of suggestions
         if not isinstance(job_suggestions, list):
             print("AI did not return a list of suggestions.")
             return None
 
-        # 6) Save to DB:  jobSuggestions table
-        # (jobTitle, company, link, matchScore)
+        # 16) Save the suggestions to the database
         JobModel.saveJobSuggestions(userId, job_suggestions)
 
-        # 7) Return the newly saved rows from DB
+        # 17) Return the saved job suggestions from the database
         return JobModel.getJobSuggestions(userId)
     
     @staticmethod
     def checkApiKey():
+        # Check if an API key is set; print a warning if not.
         if not apiModel.api_key:
             print("Warning: API key not found. Some features may not work.")
             return False
@@ -196,66 +199,54 @@ class apiModel:
     @staticmethod
     def _getUserExperienceText(userId):
         """
-        Gather user experiences from your experienceModel. 
-        Return a truncated string so you don’t exceed token limits if huge.
+        Retrieves the user's experiences from the ExperienceModel and truncates the result.
+        Returns a single string with experiences, capped at 800 characters.
         """
         exp_model = ExperienceModel()
-        exp_data = exp_model.get_experiences(userId)  # e.g. {"Work": [...], "Volunteer": [...], ...}
+        exp_data = exp_model.get_experiences(userId)  # Expects a dict with keys per experience category
 
         lines = []
         for category, items in exp_data.items():
             if items:
                 lines.append(f"{category}: {', '.join(items)}")
 
-        # Combine into a single text block
         combined = "\n".join(lines)
-        # Truncate to avoid 413 token limit errors if needed
-        return combined[:800]  # up to 800 characters
+        return combined[:800]  # Truncate to 800 characters to avoid token-limit issues
     
     def print_divider():
-        """Print a divider to separate sections in the output"""
+        # Prints a visual divider line to the console.
         print("\n" + "="*50 + "\n")
 
     @staticmethod
     def generate_documents(user_id, pdfkit_config):
-        """Generate resume and cover letter for the demo user"""
+        # Generates resume and cover letter documents for the demo user.
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
         
-        # Get the first job for the user
+        # Retrieve the first job for the user.
         cursor.execute("SELECT id FROM jobs WHERE userId = ? LIMIT 1", (user_id,))
         job_result = cursor.fetchone()
-        '''
-        if not job_result:
-            print("No jobs found for the user. Creating a mock job...")
-            job_id = create_mock_job(user_id)
-            if not job_id:
-                print("Failed to create a mock job.")
-                conn.close()
-                return
-        else:
-            job_id = job_result[0]
-        '''
-        job_id = job_result[0] #remove if creating mock job
+        # If no job exists, this block could be modified to create a mock job.
+        job_id = job_result[0]  # Currently using the first job's ID
         conn.close()
         
         print("\n" + "="*50 + "\n")
         print(f"GENERATING RESUME FOR USER {user_id}, JOB {job_id}")
         print("\n" + "="*50 + "\n")
         
-        # Generate resume
+        # Generate the resume via Groq API.
         resume_html = apiModel.generateResume(user_id, job_id)
         
         if not isinstance(resume_html, str) or resume_html.startswith("Error"):
             print(f"Resume generation failed: {resume_html}")
         else:
             print("Resume generated successfully!")
-            # Save resume to file for viewing
+            # Save the resume HTML to a local file.
             with open("generated_resume.html", "w", encoding="utf-8") as f:
                 f.write(resume_html)
             print("Resume saved to 'generated_resume.html'")
             
-            # Generate PDF
+            # Generate a PDF if pdfkit is configured.
             if pdfkit_config:
                 try:
                     pdfkit.from_string(resume_html, "generated_resume.pdf", configuration=pdfkit_config)
@@ -267,35 +258,35 @@ class apiModel:
         print(f"GENERATING COVER LETTER FOR USER {user_id}, JOB {job_id}")
         print("\n" + "="*50 + "\n")
         
-        # Generate cover letter
+        # Generate the cover letter via Groq API.
         cover_letter_html = apiModel.generateCoverLetter(user_id, job_id)
         
         if not isinstance(cover_letter_html, str) or cover_letter_html.startswith("Error"):
             print(f"Cover letter generation failed: {cover_letter_html}")
         else:
             print("Cover letter generated successfully!")
-            # Save cover letter to file for viewing
+            # Save the cover letter HTML to a local file.
             with open("generated_cover_letter.html", "w", encoding="utf-8") as f:
                 f.write(cover_letter_html)
             print("Cover letter saved to 'generated_cover_letter.html'")
             
-            # Generate PDF
+            # Generate a PDF if pdfkit is configured.
             if pdfkit_config:
                 try:
                     pdfkit.from_string(cover_letter_html, "generated_cover_letter.pdf", configuration=pdfkit_config)
                     print("Cover letter PDF saved to 'generated_cover_letter.pdf'")
                 except Exception as e:
                     print(f"Error generating PDF: {e}")
+    
     @staticmethod
     def getUserProfile(userId):
-        """Get complete user profile including work experience, education, etc."""
+        # Retrieves complete user profile information including personal details, work experience, education, projects, and certifications.
         user_data = {}
         
-        # Get basic user info
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
         
-        # Get user data
+        # Retrieve basic personal information.
         user = UserModel.getUserById(userId)
         if user:
             user_data["personal"] = {
@@ -307,7 +298,7 @@ class apiModel:
                 "portfolio": user[8] if user[8] else ""
             }
         
-        # Get work experience
+        # Retrieve work experience information.
         cursor.execute("SELECT jobTitle, company, location, startDate, endDate, responsibilities FROM workExperience WHERE userId = ?", (userId,))
         work_experience = cursor.fetchall()
         user_data["workExperience"] = []
@@ -321,7 +312,7 @@ class apiModel:
                 "responsibilities": exp[5] if exp[5] else ""
             })
             
-        # Get education
+        # Retrieve education information.
         cursor.execute("SELECT degree, university, graduationYear FROM education WHERE userId = ?", (userId,))
         education = cursor.fetchall()
         user_data["education"] = []
@@ -332,7 +323,7 @@ class apiModel:
                 "graduationYear": edu[2] if edu[2] else ""
             })
             
-        # Get projects
+        # Retrieve project information.
         cursor.execute("SELECT projectName, description FROM projects WHERE userId = ?", (userId,))
         projects = cursor.fetchall()
         user_data["projects"] = []
@@ -342,7 +333,7 @@ class apiModel:
                 "description": proj[1] if proj[1] else ""
             })
             
-        # Get certifications
+        # Retrieve certification information.
         cursor.execute("SELECT certificateName, issuer, year FROM certifications WHERE userId = ?", (userId,))
         certifications = cursor.fetchall()
         user_data["certifications"] = []
@@ -358,16 +349,19 @@ class apiModel:
         
     @staticmethod
     def generateResume(userId, jobId):
-        """Generate a resume using AI based on user profile and job details"""
+        """
+        Generate a resume using AI based on the user's profile and job details.
+        Returns the generated resume HTML, or an error string if generation fails.
+        """
         if not apiModel.checkApiKey():
             return "API key not available. Cannot generate resume."
             
         client = Groq(api_key=apiModel.api_key)
         
-        # Get user profile data
+        # Retrieve user profile data.
         user_data = apiModel.getUserProfile(userId)
         
-        # Get job details
+        # Retrieve job details.
         job = JobModel.getJobById(jobId)
         if not job:
             return "Failed to retrieve job details."
@@ -378,7 +372,7 @@ class apiModel:
             "description": job[9] if job[9] else ""
         }
         
-        # Create prompt for the AI
+        # Build the AI prompt for resume generation.
         prompt = f"""
         You are an expert resume writer. Create a professional resume for a job application using the following information:
 
@@ -414,11 +408,11 @@ class apiModel:
                 
             html_content = chat_completion.choices[0].message.content.strip()
             print(html_content)
-            # Save to database
+            # Save generated resume HTML to the database
             conn = sqlite3.connect('database.db')
             cursor = conn.cursor()
             
-            # Check if a resume already exists for this user-job combo
+            # Check if a resume already exists for this user and job, then update or insert accordingly.
             cursor.execute("SELECT id FROM resume WHERE userId = ? AND jobId = ?", (userId, jobId))
             existing = cursor.fetchone()
             
@@ -440,16 +434,19 @@ class apiModel:
     
     @staticmethod
     def generateCoverLetter(userId, jobId):
-        """Generate a cover letter using AI based on user profile and job details"""
+        """
+        Generate a cover letter using AI based on the user's profile and job details.
+        Returns the generated cover letter HTML, or an error string if generation fails.
+        """
         if not apiModel.checkApiKey():
             return "API key not available. Cannot generate cover letter."
             
         client = Groq(api_key=apiModel.api_key)
         
-        # Get user profile data
+        # Retrieve user profile data.
         user_data = apiModel.getUserProfile(userId)
         
-        # Get job details
+        # Retrieve job details.
         job = JobModel.getJobById(jobId)
         if not job:
             return "Failed to retrieve job details."
@@ -460,7 +457,7 @@ class apiModel:
             "description": job[9] if job[9] else ""
         }
         
-        # Create prompt for the AI
+        # Build the AI prompt for cover letter generation.
         prompt = f"""
         You are an expert cover letter writer. Create a compelling cover letter for a job application using the following information:
 
@@ -498,11 +495,11 @@ class apiModel:
                 
             html_content = chat_completion.choices[0].message.content.strip()
             
-            # Save to database
+            # Save generated cover letter HTML to the database
             conn = sqlite3.connect('database.db')
             cursor = conn.cursor()
             
-            # Check if a cover letter already exists for this user-job combo
+            # Check if a cover letter already exists for this user-job combo, then update or insert accordingly.
             cursor.execute("SELECT id FROM coverLetter WHERE userId = ? AND jobId = ?", (userId, jobId))
             existing = cursor.fetchone()
             

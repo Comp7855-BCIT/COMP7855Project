@@ -388,89 +388,125 @@ def download_resume(jobId):
         response.call_on_close(lambda: os.unlink(pdf_path))
         return response
     except Exception as e:
-        # If there is an error, log it, show a flash message and redirect back to the main page.
         print(f"Error sending file: {e}")
         flash("Error downloading resume", "error")
         return redirect(url_for('index'))
     
 @app.route('/downloadCover/<int:jobId>')
 def download_cover_letter(jobId):
+    """
+    Route to generate and download a cover letter PDF for a specific job.
+    """
+    # 1) Ensure the user is logged in by checking session. If not, redirect to login.
     if 'userId' not in session:
         return redirect(url_for('login'))
     
+    # 2) Retrieve the user ID from session.
     userId = session['userId']
     
+    # 3) Ask DocumentController to generate the PDF file path for the cover letter.
     pdf_path = DocumentController.generate_pdf_from_cover(userId, jobId)
     print(f"Attempting to download cover letter for job {jobId}")
+
+    # 4) If PDF generation failed (pdf_path is None/empty), flash an error and redirect home.
     if not pdf_path:
         flash("Error generating cover letter PDF", "error")
         return redirect(url_for('index'))
     
     try:
+        # 5) Retrieve job details for naming the file – usually job[2] is the job title.
         job = JobController.viewJobById(jobId)
         job_title = job[2] if job else "coverLetter"
         
+        # 6) If we didn't get a valid title, default to "coverLetter".
         if not job_title:
             job_title = "coverLetter"
             
+        # 7) Construct a safe filename by removing unwanted characters.
         safe_filename = "".join(c for c in str(job_title) if c.isalnum() or c in (' ', '_')).rstrip()
         filename = f"{safe_filename}_cover_letter.pdf"
         
+        # 8) Use Flask's send_file to serve the PDF as an attachment.
         response = send_file(pdf_path, as_attachment=True, download_name=filename, mimetype='application/pdf')
+        
+        # 9) Once the file has been sent, delete it from disk to prevent clutter.
         response.call_on_close(lambda: os.unlink(pdf_path))
         return response
     except Exception as e:
+        # 10) If anything goes wrong, log the error, flash a message, and redirect.
         print(f"Error sending file: {e}")
         flash("Error downloading cover letter", "error")
         return redirect(url_for('index'))
-    
+
 @app.route('/getDocuments/<int:jobId>')
 def get_documents(jobId):
+    """
+    Route to retrieve saved resume and cover letter HTML from the database.
+    Returns JSON with the 'resume' and 'coverLetter' fields.
+    """
+    # 1) Check if user is authenticated.
     if 'userId' not in session:
         return jsonify({"error": "Not logged in"}), 401
     
     userId = session['userId']
-    
     try:
+        # 2) Retrieve the existing resume and cover letter from DocumentController.
         resume = DocumentController.get_resume(userId, jobId)
         cover_letter = DocumentController.get_cover_letter(userId, jobId)
         
+        # 3) Return them as a JSON payload; empty strings if none exist.
         return jsonify({
             "resume": resume if resume else "",
             "coverLetter": cover_letter if cover_letter else ""
         })
     except Exception as e:
+        # 4) Log any error and return a JSON object with an error message.
         print(f"Error getting documents: {str(e)}")
         return jsonify({"error": "Error getting documents"}), 500  
 
 @app.route('/testGenerate/<int:jobId>')
 def test_generate(jobId):
+    """
+    A simple route to test AI-based resume generation for a given job.
+    Returns either 'Success' or 'Failed'.
+    """
+    # 1) Require user to be logged in.
     if 'userId' not in session:
         return "Not logged in", 401
     
     userId = session['userId']
     try:
+        # 2) Generate resume HTML via apiController.
         resume_html = apiController.generateResume(userId, jobId)
+        # 3) Return 'Success' if we got HTML back, otherwise 'Failed'.
         return f"Resume generation test: {'Success' if resume_html else 'Failed'}"
     except Exception as e:
+        # 4) Catch & show any errors in plain text.
         return f"Error: {str(e)}"
 
 @app.route('/listJobs')
 def list_jobs():
+    """
+    Route to list out all jobs for the logged-in user.
+    This is mainly for debugging or quick viewing.
+    """
     if 'userId' not in session:
         return "Not logged in", 401
     
     userId = session['userId']
     jobs = JobController.viewJobs(userId)
     
+    # Build a simple HTML string with job info.
     result = "<h1>Jobs</h1><ul>"
     for job in jobs:
+        # job is typically a tuple like (id, userId, jobTitle, ...)
         result += f"<li>ID: {job[0]} - Title: {job[2]}</li>"
     result += "</ul>"
     
     return result
 
 if __name__ == '__main__':
+    # 1) Initialize DB if needed.
     initDb()
     # userId = 1
     app.run(debug=True, port=8000)
