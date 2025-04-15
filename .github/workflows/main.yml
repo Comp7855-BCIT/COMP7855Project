@@ -58,7 +58,7 @@ jobs:
           
       - name: Create test database
         run: |
-          python scripts/initDb.py
+          python 7855_Complete_Code_cleaned_up/initDb.py
 
   build:
     runs-on: ubuntu-latest
