@@ -16,5 +16,7 @@ pip install -U python-jobspy
 download: https://wkhtmltopdf.org/downloads.html
 change file path on line 160 in documentModel: wkhtmltopdf_path = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
 
+Testing:
+python -m unittest discover
 
 Good luck!
