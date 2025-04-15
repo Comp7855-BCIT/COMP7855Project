@@ -58,7 +58,7 @@ jobs:
           
       - name: Create test database
         run: |
-          python initDb.py
+          python https://github.com/Comp7855-BCIT/COMP7855Project/tree/main/7855_Complete_Code_cleaned_up/initDb.py
 
   build:
     runs-on: ubuntu-latest
