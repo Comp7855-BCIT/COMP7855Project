@@ -22,7 +22,7 @@ from controllers.experienceController import ExperienceController
 # from models.documentModel import DocumentModel
 from initDb import initDb, simulateUserData
 from flask import request, send_file
-# from weasyprint import HTML
+from weasyprint import HTML
 from docx import Document
 import tempfile
 
