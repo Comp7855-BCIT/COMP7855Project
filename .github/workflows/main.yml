@@ -148,5 +148,5 @@ jobs:
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH_PRODUCTION }}
         run: |
           echo "Deploying to production environment"
-          rsync -avz --delete ./dist/ $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH
+          rsync -avz --delete ./dist/ ubuntu@${{ secrets.HOST }}:http://127.0.0.1:8000/
           ssh $DEPLOY_USER@$DEPLOY_HOST "cd $DEPLOY_PATH && pip install -r requirements.txt && sudo systemctl restart careerforge-production"
